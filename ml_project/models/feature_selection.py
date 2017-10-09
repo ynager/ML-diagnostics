@@ -3,6 +3,28 @@ from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
 
+#PCA
+from sklearn.decomposition import PCA
+
+class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
+    """Random Selection of features"""
+    def __init__(self, n_components=1000):
+        self.n_components = n_components
+        self.model = PCA(self.n_components)
+    
+    def fit(self, X, y=None):
+        X = check_array(X)
+        self.model.fit(X)
+        return self
+    
+    def transform(self, X, y=None):
+        check_is_fitted(self, ["model"])
+        X = check_array(X)
+        X_new = self.model.transform(X)
+        return X_new
+
+    def set_save_path(self, save_path):
+        self.save_path = save_path
 
 class NonZeroSelection(BaseEstimator, TransformerMixin):
     """Select non-zero voxels"""
