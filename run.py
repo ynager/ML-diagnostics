@@ -147,6 +147,7 @@ class ModelAction(Action):
 
     def predict(self):
         self.y_new = self.model.predict(self.X)
+        print(self.y_new)
         self._y_new_set = True
 
     def predict_proba(self):
@@ -155,7 +156,7 @@ class ModelAction(Action):
 
     def score(self):
         sc = self.model.score(self.X, self.y)
-        print("score: {}".format(sc))
+        print("myscore: {}".format(sc))
 
     def _save(self):
         y_path = normpath(self.save_path+"y_"+self.args.smt_label+".csv")

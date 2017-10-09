@@ -9,13 +9,16 @@ from sklearn.svm import SVR
 
 
 class SVRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    
-    def __init__(self, save_path=None):
+    """docstring"""
+    def __init__(self, C=20, epsilon=0.1, save_path=None):
         super(SVRegression, self).__init__()
         self.save_path = save_path
-        self.model = SVR()
+        self.C = C
+        self.epsilon = epsilon
+        self.model = None
 
     def fit(self, X, y):
+        self.model = SVR(C=self.C, epsilon=self.epsilon)
         self.model.fit(X, y)
         print("SVR fitted.")
         return self
