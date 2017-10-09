@@ -151,7 +151,6 @@ class ModelAction(Action):
     def score(self):
         sc = self.model.score(self.X, self.y)
         print("score: {}".format(sc))
-    
 
     def _save(self):
         y_path = normpath(self.save_path+"y_"+self.args.smt_label+".csv")
