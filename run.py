@@ -154,7 +154,9 @@ class ModelAction(Action):
         self._y_new_set = True
 
     def score(self):
-        self.model.score(self.X, self.y)
+        sc = self.model.score(self.X, self.y)
+        print("score: {}".format(sc))
+    
 
     def _save(self):
         y_path = normpath(self.save_path+"y_"+self.args.smt_label+".csv")
