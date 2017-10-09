@@ -13,8 +13,8 @@ class Normalization(skl.base.BaseEstimator, skl.base.TransformerMixin):
         print("Preprocessing fitted:")
         return self
     
-    
     def transform(self, X):
         X_new = self.model.transform(X)
         
         return X_new
+

@@ -7,12 +7,13 @@ from sklearn.utils.random import sample_without_replacement
 from sklearn.decomposition import PCA
 
 class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
-    """Random Selection of features"""
+    """PCA dimensionality reduction"""
     def __init__(self, n_components=1000):
         self.n_components = n_components
-        self.model = PCA(self.n_components)
+        self.model = None
     
     def fit(self, X, y=None):
+        self.model = PCA(self.n_components)
         X = check_array(X)
         self.model.fit(X)
         return self
@@ -23,8 +24,6 @@ class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
         X_new = self.model.transform(X)
         return X_new
 
-    def set_save_path(self, save_path):
-        self.save_path = save_path
 
 class RandomSelection(BaseEstimator, TransformerMixin):
     """Random Selection of features"""
