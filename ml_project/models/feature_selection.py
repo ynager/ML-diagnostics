@@ -22,8 +22,19 @@ class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["model"])
         X = check_array(X)
         X_new = self.model.transform(X)
+        print("PCA Applied")
         return X_new
 
+class ReduceResolution(BaseEstimator, TransformerMixin):
+    def __init__(self, factor):
+        self.factor = factor
+    
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        X_new = X[:,0::self.factor]
+        return X_new
 
 class NonZeroSelection(BaseEstimator, TransformerMixin):
     """Select non-zero voxels"""
