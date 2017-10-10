@@ -1,0 +1,40 @@
+
+#GridSearch
+module: ml_project.model_selection
+class: GridSearchCV
+params:
+  est_module: ml_project.pipeline
+  est_class: Pipeline
+  est_params:
+    - module: ml_project.models.feature_selection
+      class: ReduceResolution
+      params:
+        factor: 10
+
+    - module: ml_project.models.preprocessing
+      class: Normalization
+
+    - module: ml_project.models.feature_selection
+      class: PrincipleComponentAnalysis
+
+    - module: ml_project.models.regression
+      class: SVRegression
+  param_grid:
+    SVRegression__C:
+      - 0.05
+      - 0.1
+      - 0.15
+      - 0.2
+    SVRegression__epsilon:
+      - 0.05
+      - 0.1
+      - 0.5
+      - 1.0
+
+  cv:
+    module: sklearn.model_selection
+    class: KFold
+    params:
+      n_splits: 4
+      shuffle: True
+      random_state: 39
