@@ -12,13 +12,13 @@ class Normalization(skl.base.BaseEstimator, skl.base.TransformerMixin):
     def fit(self, X, y):
         self.scaler.fit(X)
         #self.normalizer.fit(X)
-        print("Preprocessing fitted:")
+        print("Scaler fitted")
         return self
     
     def transform(self, X):
         X_new = self.scaler.transform(X)
         #X_new = self.normalizer.transform(X_new)
-        print("Preprocessing applied")
+        print("Scaler applied")
         
         return X_new
 
