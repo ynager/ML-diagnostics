@@ -13,16 +13,17 @@ class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
         self.model = None
     
     def fit(self, X, y=None):
-        self.model = PCA(self.n_components)
+        self.model = PCA()
         X = check_array(X)
         self.model.fit(X)
+        print("PCA fitted")
         return self
     
     def transform(self, X, y=None):
         check_is_fitted(self, ["model"])
         X = check_array(X)
         X_new = self.model.transform(X)
-        print("PCA Applied")
+        print("PCA transformed")
         return X_new
 
 class ReduceResolution(BaseEstimator, TransformerMixin):
@@ -30,10 +31,12 @@ class ReduceResolution(BaseEstimator, TransformerMixin):
         self.factor = factor
     
     def fit(self, X, y=None):
+        print("ReduceResolution fitted")
         return self
 
     def transform(self, X, y=None):
         X_new = X[:,0::self.factor]
+        print("ReduceResolution transformed")
         return X_new
 
 class RandomSelection(BaseEstimator, TransformerMixin):

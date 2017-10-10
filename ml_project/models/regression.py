@@ -20,12 +20,13 @@ class SVRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
     def fit(self, X, y):
         self.model = SVR(C=self.C, epsilon=self.epsilon, kernel='linear')
         self.model.fit(X, y)
-        print("SVR fitted.")
+        print("SVR fitted")
         return self
 
     def predict(self, X):
         X = check_array(X)
         prediction = self.model.predict(X)
+        print("SVR predicted")
         print(prediction)
         return prediction
 
