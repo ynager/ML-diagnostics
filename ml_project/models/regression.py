@@ -4,8 +4,11 @@ import pandas as pd
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from matplotlib import pyplot as plt
 
-# SVM stuff
+# SVM
 from sklearn.svm import SVR
+
+# Ridge
+from sklearn.linear_model import RidgeCV
 
 
 class SVRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -42,6 +45,45 @@ class SVRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
             df = pd.DataFrame({"score": scores})
             df.to_csv(self.save_path + "SVScore.csv")
+
+        return score
+
+    def set_save_path(self, save_path):
+        self.save_path = save_path
+
+
+class RidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def __init__(self, save_path=None):
+        super(RidgeRegression, self).__init__()
+        self.save_path = save_path
+        self.model = None
+
+    def fit(self, X, y):
+        self.model = RidgeCV(alphas=(0.1,10),
+                             fit_intercept=True)
+
+        self.model.fit(X, y)
+        print("Ridge fitted")
+        return self
+
+    def predict(self, X):
+        X = check_array(X)
+        prediction = self.model.predict(X)
+        print("Ridge predicted")
+        return prediction
+
+    def score(self, X, y, sample_weight=None):
+        scores = (self.predict(X) - y)**2 / len(y)
+        score = np.sum(scores)
+
+        if self.save_path is not None:
+            plt.figure()
+            plt.plot(scores, "o")
+            plt.savefig(self.save_path + "RidgeScore.png")
+            plt.close()
+
+            df = pd.DataFrame({"score": scores})
+            df.to_csv(self.save_path + "RidgeScore.csv")
 
         return score
 
