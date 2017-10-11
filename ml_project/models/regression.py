@@ -13,15 +13,16 @@ from sklearn.linear_model import RidgeCV
 
 class SVRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
     """docstring"""
-    def __init__(self, C=20, epsilon=0.1, save_path=None):
+    def __init__(self, C=20, epsilon=0.1, kernel='linear', save_path=None):
         super(SVRegression, self).__init__()
         self.save_path = save_path
         self.C = C
+        self.kernel = kernel
         self.epsilon = epsilon
         self.model = None
 
     def fit(self, X, y):
-        self.model = SVR(C=self.C, epsilon=self.epsilon, kernel='linear')
+        self.model = SVR(C=self.C, epsilon=self.epsilon, kernel=self.kernel)
         self.model.fit(X, y)
         print("SVR fitted")
         return self
@@ -59,11 +60,12 @@ class RidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
         self.model = None
 
     def fit(self, X, y):
-        self.model = RidgeCV(alphas=(0.1,10),
+        self.model = RidgeCV(alphas=(2,3),
                              fit_intercept=True)
 
         self.model.fit(X, y)
-        print("Ridge fitted")
+        print("Ridge fitted with alpha:")
+        print(self.model.alpha_)
         return self
 
     def predict(self, X):
