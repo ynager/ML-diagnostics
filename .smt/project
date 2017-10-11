@@ -1,42 +1,42 @@
 {
-  "default_main_file": "run.py",
-  "default_repository": {
-    "url": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project",
-    "upstream": "https://gitlab.vis.ethz.ch/vwegmayr/ml-project.git",
-    "type": "sumatra.versioncontrol._git.GitRepository"
-  },
-  "label_generator": "timestamp",
-  "sumatra_version": "0.8dev",
-  "timestamp_format": "%Y%m%d-%H%M%S",
-  "data_label": "cmdline",
-  "default_launch_mode": {
-    "working_directory": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project",
-    "options": null,
-    "type": "sumatra.launch.SerialLaunchMode"
-  },
-  "on_changed": "error",
   "plugins": [],
   "data_store": {
-    "root": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project/data",
-    "type": "sumatra.datastore.filesystem.FileSystemDataStore"
+    "type": "sumatra.datastore.filesystem.FileSystemDataStore",
+    "root": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project/data"
   },
+  "default_main_file": "run.py",
   "name": "ml_project",
-  "description": "",
-  "record_store": {
-    "db_file": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project/.smt/records",
-    "type": "sumatra.recordstore.django_store.DjangoRecordStore"
-  },
-  "_most_recent": "20171010-142307",
   "input_datastore": {
-    "root": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project/data",
-    "type": "sumatra.datastore.filesystem.FileSystemDataStore"
+    "type": "sumatra.datastore.filesystem.FileSystemDataStore",
+    "root": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project/data"
+  },
+  "data_label": "cmdline",
+  "on_changed": "error",
+  "record_store": {
+    "type": "sumatra.recordstore.django_store.DjangoRecordStore",
+    "db_file": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project/.smt/records"
+  },
+  "default_launch_mode": {
+    "options": null,
+    "type": "sumatra.launch.SerialLaunchMode",
+    "working_directory": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project"
+  },
+  "description": "",
+  "sumatra_version": "0.8dev",
+  "default_repository": {
+    "upstream": "https://gitlab.vis.ethz.ch/vwegmayr/ml-project.git",
+    "type": "sumatra.versioncontrol._git.GitRepository",
+    "url": "/Users/yanniknager/Documents/machine_learning/proj1/ml-project"
   },
   "default_executable": {
-    "path": "/Users/yanniknager/miniconda3/envs/ml_project/bin/python",
-    "name": "Python",
     "version": "3.5.3",
     "options": "",
-    "type": "sumatra.programs.PythonExecutable"
+    "type": "sumatra.programs.PythonExecutable",
+    "path": "/Users/yanniknager/miniconda3/envs/ml_project/bin/python",
+    "name": "Python"
   },
-  "allow_command_line_parameters": true
+  "_most_recent": "20171011-125126",
+  "allow_command_line_parameters": true,
+  "label_generator": "timestamp",
+  "timestamp_format": "%Y%m%d-%H%M%S"
 }
