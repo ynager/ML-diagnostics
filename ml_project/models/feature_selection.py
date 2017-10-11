@@ -2,9 +2,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
-
-# PCA
 from sklearn.decomposition import PCA
+from sklearn.feature_selection import VarianceThreshold
 
 
 class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
@@ -41,6 +40,20 @@ class ReduceResolution(BaseEstimator, TransformerMixin):
         print("ReduceResolution transformed")
         return X_new
 
+class VarianceThreshold(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        self.model = None
+
+    def fit(self, X, y=None):
+        self.model = VarianceThreshold()
+        self.model.fit(X)
+        print("VarianceThreshold fitted")
+        return self
+
+    def transform(self, X, y=None):
+        X_new = self.model.transform(X)
+        print("VarianceThreshold transformed")
+        return X_new
 
 class NonZeroSelection(BaseEstimator, TransformerMixin):
     """Select non-zero voxels"""
