@@ -1,22 +1,61 @@
 import sklearn as skl
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn import preprocessing
+import pylab as plt
+from scipy.ndimage.filters import gaussian_filter
 
 
 class Normalization(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
     def __init__(self):
         self.scaler = preprocessing.StandardScaler()
-        self.normalizer = preprocessing.Normalizer()
+        #self.normalizer = preprocessing.Normalizer()
 
     def fit(self, X, y):
-        self.scaler.fit(X)
-        #self.normalizer.fit(X)
         print("Scaler fitted")
+        #self.scaler.fit(X)
+        #self.normalizer.fit(X)
         return self
 
     def transform(self, X):
-        X_new = self.scaler.fit_transform(X)
+        X_shape = X.shape
+        #X_new = self.scaler.fit_transform(X)
         #X_new = self.normalizer.transform(X)
+        X_mean = X.mean(axis=1)
+        X = X-X_mean.reshape(X_shape[0],1)
+        test_max = X.max(axis=1)
+        X_new = X/test_max.reshape(X_shape[0],1)
         print("Scaler applied")
+        return X_new
+
+class ReduceResolution(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def __init__(self, factor):
+        self.factor = factor
+    
+    def fit(self, X, y=None):
+        print("ReduceResolution fitted")
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = X[:, 0::self.factor]
+        print("ReduceResolution transformed")
+        return X_new
+
+class Flatten(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    """Flatten"""
+    def __init__(self, dim=2):
+        self.dim = dim
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X, y=None):
+        X = check_array(X)
+        X = X.reshape(-1, 176, 208, 176) # Bad practice: hard-coded dimensions
+        #X_new = gaussian_filter(X,(0,1,1,1)) #filter
+        X_new = X[:,70:130]
+        X = X.mean(axis=self.dim)
+        #print('Flatten transform')
+        X_new = X_new.reshape(X_new.shape[0], -1)
+        print(X_new.shape)
         return X_new

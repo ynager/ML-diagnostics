@@ -16,17 +16,19 @@ params:
 #        n_components: 200
     - module: ml_project.models.regression
       class: RidgeRegression
-      params:
-         alpha: 6
 
   param_grid:
     PrincipleComponentAnalysis__n_components:
-      - 100
-      - 120
       - 140
       - 160
       - 180
       - 200
+    RidgeRegression__alpha:
+      - 0.1
+      - 1
+      - 4
+      - 8
+      - 12
   cv:
     module: sklearn.model_selection
     class: KFold
