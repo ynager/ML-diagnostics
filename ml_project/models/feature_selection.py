@@ -4,6 +4,8 @@ from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import VarianceThreshold
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
 
 
 class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
@@ -13,7 +15,7 @@ class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
         self.model = None
 
     def fit(self, X, y=None):
-        self.model = PCA(whiten=False)
+        self.model = PCA(whiten=False, n_components=self.n_components)
         X = check_array(X)
         self.model.fit(X)
         print("PCA fitted")
@@ -26,19 +28,6 @@ class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
         print("PCA transformed")
         return X_new
 
-
-class ReduceResolution(BaseEstimator, TransformerMixin):
-    def __init__(self, factor):
-        self.factor = factor
-
-    def fit(self, X, y=None):
-        print("ReduceResolution fitted")
-        return self
-
-    def transform(self, X, y=None):
-        X_new = X[:, 0::self.factor]
-        print("ReduceResolution transformed")
-        return X_new
 
 class VarianceThreshold(BaseEstimator, TransformerMixin):
     def __init__(self):
@@ -55,6 +44,7 @@ class VarianceThreshold(BaseEstimator, TransformerMixin):
         print("VarianceThreshold transformed")
         return X_new
 
+
 class NonZeroSelection(BaseEstimator, TransformerMixin):
     """Select non-zero voxels"""
     def fit(self, X, y=None):
@@ -67,6 +57,21 @@ class NonZeroSelection(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["nonzero"])
         X = check_array(X)
         return X[:, self.nonzero]
+
+class SelectK(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        self.model = None
+    
+    def fit(self, X, y=None):
+        self.model = SelectKBest(f_regression, k=10)
+        self.model.fit(X, y)
+        print("SelectKBest fitted")
+        return self
+    
+    def transform(self, X, y=None):
+        X_new = self.model.transform(X)
+        print("SelectKBest transformed")
+        return X_new
 
 class RandomSelection(BaseEstimator, TransformerMixin):
     """Random Selection of features"""
