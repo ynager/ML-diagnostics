@@ -95,15 +95,15 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = X.reshape(-1, 176, 208, 176)
         
         #crop data
-        X = X[:,25:145,30:180,40:150]
+        X = X[:,25:145,30:180,35:155]
         
         #bins
-        n_bins = 40
-        rmin = 0
-        rmax = 1500
+        n_bins = 20
+        rmin = 1
+        rmax = 1200
         
         #divide into cubes of size 10
-        d = 10
+        d = 15
         p,m,n = X[0].shape
         
         #just to get size
