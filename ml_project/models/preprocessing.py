@@ -52,13 +52,14 @@ class Histogram(skl.base.BaseEstimator, skl.base.TransformerMixin):
         return self
 
     def transform(self, X, y=None):
+        X = X.reshape(-1, 176, 208, 176)
         H = np.zeros((X.shape[0], self.n_bins), dtype=np.int32)
         for samp in range(X_new.shape[0]):
             H[samp, :] = np.histogram(X[samp, :], bins=n_bins, range=(self.rmin,self.rmax))[0]
         return H
 
 
-class Flatten(skl.base.BaseEstimator, skl.base.TransformerMixin):
+class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
     """Flatten"""
     def __init__(self, dim=2):
         self.dim = dim
@@ -74,7 +75,7 @@ class Flatten(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = check_array(X)
         X = X.reshape(-1, 176, 208, 176) # Bad practice: hard-coded dimensions
         #X_new = gaussian_filter(X,(0,0,4,4)) #filter
-        X_new = X[:,70:130]
+        X_new = X[:,70:130, 20:280, 20:180]
         #X = X.mean(axis=self.dim)
         print('Flatten transform')
 
