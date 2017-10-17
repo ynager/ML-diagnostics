@@ -45,11 +45,12 @@ class VarianceThreshold(BaseEstimator, TransformerMixin):
         return X_new
 
 class SelectK(BaseEstimator, TransformerMixin):
-    def __init__(self):
+    def __init__(self, k=50):
+        self.k = k
         self.model = None
     
-    def fit(self, X, y=None):
-        self.model = SelectKBest(f_regression, k=10)
+    def fit(self, X, y):
+        self.model = SelectKBest(f_regression, k=self.k)
         self.model.fit(X, y)
         print("SelectKBest fitted")
         return self
