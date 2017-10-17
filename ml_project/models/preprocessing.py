@@ -75,9 +75,50 @@ class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = check_array(X)
         X = X.reshape(-1, 176, 208, 176) # Bad practice: hard-coded dimensions
         #X_new = gaussian_filter(X,(0,0,4,4)) #filter
-        X_new = X[:,70:130, 20:280, 20:180]
-        #X = X.mean(axis=self.dim)
-        print('Flatten transform')
+        X_new = X[:,50:150, 20:180, 20:180]
+
+        print('Crop transform')
 
         X_new = X_new.reshape(X_new.shape[0], -1)
         return X_new
+
+class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def __init__(self):
+        self.min = 0
+        self.max = 0
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X, y=None):
+        X = check_array(X)
+        X = X.reshape(-1, 176, 208, 176)
+        
+        #crop data
+        X = X[:,25:145,30:180,40:150]
+        
+        #bins
+        n_bins = 40
+        rmin = 0
+        rmax = 1500
+        
+        #divide into cubes of size 10
+        d = 10
+        p,m,n = X[0].shape
+        
+        #just to get size
+        Temp = X[0].reshape(-1, m//d, d, n//d, d).transpose(1, 3, 0, 2, 4).reshape(-1, d, d, d)
+        
+        hist = Histogram(n_bins=40, rmin=0, rmax=1500)
+        H = np.zeros((X.shape[0], Temp.shape[0], n_bins), dtype=np.int32)
+        
+        for samp in range(X.shape[0]):
+            Cubes = X[samp].reshape(-1,m//d,d,n//d,d).transpose(1, 3, 0, 2, 4).reshape(-1, d, d, d)
+            for cub in range(Cubes.shape[0]):
+                H[samp, cub, :] = np.histogram(Cubes[cub, :], bins=n_bins, range=(rmin, rmax))[0]
+        
+        Hflat = H.reshape(H.shape[0],-1)
+        print("dim Hflat")
+        print(Hflat.shape)
+        return Hflat
+
