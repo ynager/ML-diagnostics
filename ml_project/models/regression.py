@@ -186,7 +186,7 @@ class KernelEstimator(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
 class GaussianProcessRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
     def __init__(self, kernel=None, alpha=None, save_path=None):
-        super(GaussianProcessRegressor, self).__init__()
+        super(GaussianProcessRegression, self).__init__()
         self.save_path = save_path
         self.alpha = alpha
         self.kernel = kernel
