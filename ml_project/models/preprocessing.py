@@ -83,10 +83,11 @@ class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
         return X_new
 
 class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, rmin=0, rmax=1500, nbins=30):
+    def __init__(self, rmin=0, rmax=1500, nbins=30, d=10):
         self.rmin = rmin
         self.rmax = rmax
         self.nbins = nbins
+        self.d = d
     
     def fit(self, X, y=None):
         return self
@@ -103,8 +104,8 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         rmin = self.rmin
         rmax = self.rmax
         
-        #divide into cubes of size 10
-        d = 15
+        #divide into cubes of size d
+        d = self.d
         p,m,n = X[0].shape
         
         #just to get size
@@ -114,12 +115,11 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         H = np.zeros((X.shape[0], Temp.shape[0], n_bins), dtype=np.int32)
         
         for samp in range(X.shape[0]):
-            Cubes = X[samp].reshape(-1,m//d,d,n//d,d).transpose(1, 3, 0, 2, 4).reshape(-1, d, d, d)
+            Cubes = X[samp].reshape(-1,m//d,d,n//d,p//d).transpose(1, 3, 0, 2, 4).reshape(-1, d, d, d)
             for cub in range(Cubes.shape[0]):
                 H[samp, cub, :] = np.histogram(Cubes[cub, :], bins=n_bins, range=(rmin, rmax))[0]
         
         Hflat = H.reshape(H.shape[0],-1)
-        print("dim Hflat")
-        print(Hflat.shape)
+        print("dim Hflat: {}".format(Hflat.shape))
         return Hflat
 

@@ -4,31 +4,41 @@ params:
   est_module: ml_project.pipeline
   est_class: Pipeline
   est_params:
+
     - module: ml_project.models.preprocessing
-      class: Flatten
+      class: CropCubeHist
+      params:
+        nbins: 22
+        rmin: 1
+        rmax: 1300
+        d: 10
+
+    - module: sklearn.feature_selection
+      class: VarianceThreshold
+      params:
+        threshold: 0.0
+
     - module: sklearn.preprocessing
-      class: StandardScaler
-    - module: ml_project.models.preprocessing
-      class: Normalization
-    - module: ml_project.models.feature_selection
-      class: PrincipleComponentAnalysis
-#      params:
-#        n_components: 200
+      class: Normalizer
+
     - module: ml_project.models.regression
-      class: RidgeRegression
+      class: GaussianProcessRegression
+      params:
+        alpha: 0.0000001
 
   param_grid:
-    PrincipleComponentAnalysis__n_components:
-      - 140
-      - 160
-      - 180
-      - 200
-    RidgeRegression__alpha:
-      - 0.1
-      - 1
-      - 4
-      - 8
-      - 12
+    CropCubeHist__nbins:
+      - 20
+      - 22
+      - 24
+      - 26
+
+    CropCubeHist__rmax:
+      - 1000
+      - 1200
+      - 1400
+      - 1600
+
   cv:
     module: sklearn.model_selection
     class: KFold
