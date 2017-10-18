@@ -3,6 +3,7 @@ import numpy as np
 import argparse
 import os
 import sys
+import time
 import pandas as pd
 
 from sklearn.externals import joblib
@@ -176,6 +177,7 @@ class ModelAction(Action):
             raise RuntimeError("Can only run transform, predict or score from"
                                "model, got {}.".format(action))
 
+start = time.time()
 
 if __name__ == '__main__':
 
@@ -202,3 +204,6 @@ if __name__ == '__main__':
         config_parser = configparse.ConfigParser()
         config = config_parser.parse_config(args.config)
         ConfigAction(args, config)
+
+stop = time.time()
+print("Time elapsed: {0:.2f} s".format(stop-start))
