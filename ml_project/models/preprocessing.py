@@ -4,6 +4,7 @@ from sklearn import preprocessing
 import pylab as plt
 from scipy.ndimage.filters import gaussian_filter
 import numpy as np
+from ml_project.models.utils import *
 
 
 class Normalization(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -115,11 +116,14 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         H = np.zeros((X.shape[0], Temp.shape[0], n_bins), dtype=np.int32)
         
         for samp in range(X.shape[0]):
-            Cubes = X[samp].reshape(-1,m//d,d,n//d,p//d).transpose(1, 3, 0, 2, 4).reshape(-1, d, d, d)
+            #Cubes = X[samp].reshape(-1,m//d,d,n//d,p//d).transpose(1, 3, 0, 2, 4).reshape(-1, d, d, d)
+            Cubes = make_blocks(X[samp],d)
             for cub in range(Cubes.shape[0]):
                 H[samp, cub, :] = np.histogram(Cubes[cub, :], bins=n_bins, range=(rmin, rmax))[0]
         
         Hflat = H.reshape(H.shape[0],-1)
         print("dim Hflat: {}".format(Hflat.shape))
         return Hflat
+
+
 
