@@ -105,12 +105,12 @@ class HuberRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
         self.model = None
     
     def fit(self, X, y):
-        self.model = HuberRegressor(epsilon=self.epsilon,alpha=self.alpha, max_iter=self.max_iter)
-            
+        self.model = HuberRegressor(epsilon=self.epsilon, alpha=self.alpha, max_iter=self.max_iter)
+
         self.model.fit(X, y)
 
         return self
-    
+
     def predict(self, X):
         X = check_array(X)
         prediction = self.model.predict(X)
@@ -120,9 +120,9 @@ class HuberRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
     def score(self, X, y, sample_weight=None):
         scores = (self.predict(X) - y)**2 / len(y)
         score = np.sum(scores)
-        
+
         return -score
-    
+
     def set_save_path(self, save_path):
         self.save_path = save_path
 
@@ -191,24 +191,22 @@ class GaussianProcessRegression(skl.base.BaseEstimator, skl.base.TransformerMixi
         self.alpha = alpha
         self.kernel = kernel
         self.model = None
-    
+
     def fit(self, X, y):
         self.model = GaussianProcessRegressor(alpha = self.alpha, kernel = self.kernel, normalize_y = True, n_restarts_optimizer=5)
         self.model.fit(X, y)
         return self
-    
+
     def predict(self, X):
         X = check_array(X)
         prediction = self.model.predict(X)
         print("Gaussian predicted")
         return prediction
-    
+
     def score(self, X, y, sample_weight=None):
         scores = (self.predict(X) - y)**2 / len(y)
         score = np.sum(scores)
-                
         return score
-    
+
     def set_save_path(self, save_path):
         self.save_path = save_path
-

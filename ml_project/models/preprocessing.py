@@ -83,9 +83,10 @@ class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
         return X_new
 
 class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self):
-        self.min = 0
-        self.max = 0
+    def __init__(self, rmin=0, rmax=1500, nbins=30):
+        self.rmin = rmin
+        self.rmax = rmax
+        self.nbins = nbins
     
     def fit(self, X, y=None):
         return self
@@ -98,9 +99,9 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = X[:,25:145,30:180,35:155]
         
         #bins
-        n_bins = 20
-        rmin = 1
-        rmax = 1200
+        n_bins = self.nbins
+        rmin = self.rmin
+        rmax = self.rmax
         
         #divide into cubes of size 10
         d = 15
