@@ -10,6 +10,7 @@ from sklearn.linear_model import Ridge
 from sklearn.linear_model import Lasso
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.linear_model import HuberRegressor
+from sklearn.linear_model import BayesianRidge
 
 
 class SVRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -123,6 +124,32 @@ class HuberRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
         return -score
 
+    def set_save_path(self, save_path):
+        self.save_path = save_path
+
+class BayesianRidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def __init__(self, n_iter=300, save_path=None):
+        super(BayesianRidgeRegression, self).__init__()
+        self.save_path = save_path
+        self.n_iter = n_iter
+        self.model = None
+    
+    def fit(self, X, y):
+        self.model = BayesianRidge(n_iter=self.n_iter, fit_intercept=True)
+        self.model.fit(X, y)
+        return self
+    
+    def predict(self, X):
+        X = check_array(X)
+        prediction = self.model.predict(X)
+        print("BayesianRidge predicted")
+        return prediction
+    
+    def score(self, X, y, sample_weight=None):
+        scores = (self.predict(X) - y)**2 / len(y)
+        score = np.sum(scores)
+        return -score
+    
     def set_save_path(self, save_path):
         self.save_path = save_path
 
