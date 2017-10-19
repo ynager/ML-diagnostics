@@ -1,10 +1,10 @@
 import numpy as np
 
+
 def make_blocks(X,t):
     xdim = range(0,X.shape[0],t)
     ydim = range(0,X.shape[1],t)
     zdim = range(0,X.shape[2],t)
-    
     reshaped = np.zeros((X.shape[0]//t*X.shape[1]//t*X.shape[2]//t,t,t,t))
     block = 0
     for x in xdim:

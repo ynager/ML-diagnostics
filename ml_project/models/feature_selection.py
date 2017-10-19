@@ -3,7 +3,6 @@ from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
 from sklearn.decomposition import PCA
-from sklearn.feature_selection import VarianceThreshold
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 
@@ -29,21 +28,6 @@ class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
         return X_new
 
 
-class VarianceThreshold(BaseEstimator, TransformerMixin):
-    def __init__(self):
-        self.model = None
-
-    def fit(self, X, y=None):
-        self.model = VarianceThreshold()
-        self.model.fit(X)
-        print("VarianceThreshold fitted")
-        return self
-
-    def transform(self, X, y=None):
-        X_new = self.model.transform(X)
-        print("VarianceThreshold transformed")
-        return X_new
-
 class SelectK(BaseEstimator, TransformerMixin):
     def __init__(self, k=50):
         self.k = k
@@ -54,11 +38,12 @@ class SelectK(BaseEstimator, TransformerMixin):
         self.model.fit(X, y)
         print("SelectKBest fitted")
         return self
-    
+
     def transform(self, X, y=None):
         X_new = self.model.transform(X)
         print("SelectKBest transformed")
         return X_new
+
 
 class RandomSelection(BaseEstimator, TransformerMixin):
     """Random Selection of features"""
