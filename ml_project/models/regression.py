@@ -4,10 +4,9 @@ import pandas as pd
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from matplotlib import pyplot as plt
 
-
 from sklearn.svm import SVR
 from sklearn.linear_model import Ridge
-from sklearn.linear_model import Lasso
+# from sklearn.linear_model import Lasso
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.linear_model import HuberRegressor
 from sklearn.linear_model import BayesianRidge
@@ -67,8 +66,8 @@ class RidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
                              fit_intercept=True)
 
         self.model.fit(X, y)
-        #print("Ridge fitted with alpha:")
-        #print(self.model.alpha_)
+        # print("Ridge fitted with alpha:")
+        # print(self.model.alpha_)
         return self
 
     def predict(self, X):
@@ -104,7 +103,7 @@ class HuberRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
         self.alpha = alpha
         self.max_iter = max_iter
         self.model = None
-    
+
     def fit(self, X, y):
         self.model = HuberRegressor(epsilon=self.epsilon, alpha=self.alpha, max_iter=self.max_iter)
 
@@ -117,7 +116,7 @@ class HuberRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
         prediction = self.model.predict(X)
         print("Huber predicted")
         return prediction
-    
+
     def score(self, X, y, sample_weight=None):
         scores = (self.predict(X) - y)**2 / len(y)
         score = np.sum(scores)
@@ -133,23 +132,23 @@ class BayesianRidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin)
         self.save_path = save_path
         self.n_iter = n_iter
         self.model = None
-    
+
     def fit(self, X, y):
         self.model = BayesianRidge(n_iter=self.n_iter, fit_intercept=True)
         self.model.fit(X, y)
         return self
-    
+
     def predict(self, X):
         X = check_array(X)
         prediction = self.model.predict(X)
         print("BayesianRidge predicted")
         return prediction
-    
+
     def score(self, X, y, sample_weight=None):
         scores = (self.predict(X) - y)**2 / len(y)
         score = np.sum(scores)
         return -score
-    
+
     def set_save_path(self, save_path):
         self.save_path = save_path
 
@@ -212,15 +211,18 @@ class KernelEstimator(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
 
 class GaussianProcessRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, kernel=None, alpha=None, save_path=None):
+    def __init__(self, kernel=None, n_res_opt=5, alpha=None, save_path=None):
         super(GaussianProcessRegression, self).__init__()
         self.save_path = save_path
         self.alpha = alpha
+        self.n_res_opt = n_res_opt
         self.kernel = kernel
         self.model = None
 
     def fit(self, X, y):
-        self.model = GaussianProcessRegressor(alpha = self.alpha, kernel = self.kernel, normalize_y = True, n_restarts_optimizer=5)
+        self.model = GaussianProcessRegressor(alpha = self.alpha, kernel = self.kernel, normalize_y = True, n_restarts_optimizer=self.n_res_opt)
+        print("opt restarts: {}".format(self.n_res_opt))
+        print("alpha: {}".format(self.alpha))
         self.model.fit(X, y)
         return self
 

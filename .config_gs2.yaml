@@ -8,9 +8,7 @@ params:
     - module: ml_project.models.preprocessing
       class: CropCubeHist
       params:
-        nbins: 22
         rmin: 1
-        rmax: 1300
         d: 10
 
     - module: sklearn.feature_selection
@@ -28,16 +26,15 @@ params:
 
   param_grid:
     CropCubeHist__nbins:
-      - 20
-      - 22
-      - 24
-      - 26
+      - 28
+      - 30
+      - 32
 
     CropCubeHist__rmax:
-      - 1000
-      - 1200
-      - 1400
-      - 1600
+      - 100
+      - 3800
+      - 4000
+      - 4200
 
   cv:
     module: sklearn.model_selection
@@ -45,4 +42,3 @@ params:
     params:
       n_splits: 3
       shuffle: True
-      random_state: 37
