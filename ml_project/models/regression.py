@@ -230,6 +230,7 @@ class GaussianProcessRegression(skl.base.BaseEstimator, skl.base.TransformerMixi
         X = check_array(X)
         prediction = self.model.predict(X)
         print("Gaussian predicted")
+        prediction[prediction < 18] = 18
         return prediction
 
     def score(self, X, y, sample_weight=None):
