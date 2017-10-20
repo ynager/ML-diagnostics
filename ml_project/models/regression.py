@@ -236,7 +236,7 @@ class GaussianProcessRegression(skl.base.BaseEstimator, skl.base.TransformerMixi
     def score(self, X, y, sample_weight=None):
         scores = (self.predict(X) - y)**2 / len(y)
         score = np.sum(scores)
-        return score
+        return -score
 
     def set_save_path(self, save_path):
         self.save_path = save_path

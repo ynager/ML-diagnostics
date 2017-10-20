@@ -5,6 +5,7 @@ __pycache__/
 .kaggle-cli/
 data/
 .config.yaml
+.config*
 *.xcodeproj
 DerivedData/
 other/
