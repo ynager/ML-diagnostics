@@ -191,8 +191,8 @@ class ModelAction(Action):
             raise RuntimeError("Can only run transform, predict, predict_proba"
                                " or score from model, got {}.".format(action))
 
-start = time.time()
 
+start = time.time()
 if __name__ == '__main__':
 
     arg_parser = argparse.ArgumentParser(description="Scikit runner.")

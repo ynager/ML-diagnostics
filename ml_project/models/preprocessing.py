@@ -1,8 +1,8 @@
 import sklearn as skl
 from sklearn.utils.validation import check_array
-from scipy.ndimage.filters import gaussian_filter
+# from scipy.ndimage.filters import gaussian_filter
 import numpy as np
-from ml_project.models.utils import make_blocks, anisodiff3, image_histogram_equalization
+from ml_project.models.utils import make_blocks, anisodiff3
 
 
 class ReduceResolution(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -17,24 +17,6 @@ class ReduceResolution(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X_new = X[:, 0::self.factor]
         print("ReduceResolution transformed")
         return X_new
-
-
-class Histogram(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, n_bins=10, rmin=0, rmax=1024):
-        self.n_bins = n_bins
-        self.rmin = rmin
-        self.rmax = rmax
-
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X, y=None):
-        X = X.reshape(-1, 176, 208, 176)
-        H = np.zeros((X.shape[0], self.n_bins), dtype=np.int32)
-        for samp in range(X_new.shape[0]):
-            H[samp, :] = np.histogram(X[samp, :], bins=n_bins, range
-                                      =(self.rmin, self.rmax))[0]
-        return H
 
 
 class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -62,7 +44,9 @@ class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
 
 class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, rmin=0, rmax=4000, nbins=30, d=10, anis_kappa=35, anis_niter=2):
+    def __init__(self, rmin=0, rmax=4000, nbins=30, d=10,
+                 anis_kappa=35, anis_niter=2):
+
         self.rmin = rmin
         self.rmax = rmax
         self.nbins = nbins
@@ -79,11 +63,10 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
         # crop data
         X = X[:, 25:145, 30:180, 35:155]
-        
+
         for f in range(X.shape[0]):
-             X[f] = anisodiff3(X[f], option=1, kappa=self.anis_kappa, niter=self.anis_niter)
-            # X[f] = image_histogram_equalization(X[f],number_bins=4000,max_value=4000)[0]
-    
+            X[f] = anisodiff3(X[f], option=1, kappa=self.anis_kappa,
+                              niter=self.anis_niter)
 
         # bins
         n_bins = self.nbins
@@ -93,15 +76,18 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         p, m, n = X[0].shape
 
         # just to get size
-        Temp = X[0].reshape(-1, m//d, d, n//d, d).transpose(1, 3, 0, 2, 4).reshape(-1, d, d, d)
+        Temp = X[0].reshape(-1, m//d, d, n//d, d).transpose(1, 3, 0, 2, 4) \
+            .reshape(-1, d, d, d)
 
         H = np.zeros((X.shape[0], Temp.shape[0], n_bins), dtype=np.int32)
 
         for samp in range(X.shape[0]):
-            Cubes = make_blocks(X[samp],d)
+            Cubes = make_blocks(X[samp], d)
             for cub in range(Cubes.shape[0]):
                 H[samp, cub, :] = np.histogram(Cubes[cub, :],
-                                    bins=n_bins, range=(self.rmin, self.rmax))[0]
+                                               bins=n_bins,
+                                               range=(self.rmin,
+                                                      self.rmax))[0]
 
         Hflat = H.reshape(H.shape[0], -1)
         print("dim Hflat: {}".format(Hflat.shape))

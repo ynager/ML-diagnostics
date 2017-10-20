@@ -9,3 +9,4 @@ data/
 *.xcodeproj
 DerivedData/
 other/
+.smt/
