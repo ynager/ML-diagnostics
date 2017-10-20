@@ -62,11 +62,13 @@ class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
 
 class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, rmin=0, rmax=4000, nbins=30, d=10):
+    def __init__(self, rmin=0, rmax=4000, nbins=30, d=10, anis_kappa=35, anis_niter=2):
         self.rmin = rmin
         self.rmax = rmax
         self.nbins = nbins
         self.d = d
+        self.anis_kappa = anis_kappa
+        self.anis_niter = anis_niter
 
     def fit(self, X, y=None):
         return self
@@ -79,7 +81,7 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = X[:, 25:145, 30:180, 35:155]
         
         for f in range(X.shape[0]):
-             X[f] = anisodiff3(X[f], option=1, kappa=35, niter=2)
+             X[f] = anisodiff3(X[f], option=1, kappa=self.anis_kappa, niter=self.anis_niter)
             # X[f] = image_histogram_equalization(X[f],number_bins=4000,max_value=4000)[0]
     
 
