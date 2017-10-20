@@ -63,7 +63,7 @@ class RidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
     def fit(self, X, y):
         self.model = Ridge(alpha=self.alpha,
-                             fit_intercept=True)
+                           fit_intercept=True)
 
         self.model.fit(X, y)
         # print("Ridge fitted with alpha:")
@@ -74,7 +74,7 @@ class RidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = check_array(X)
         prediction = self.model.predict(X)
         print("Ridge predicted")
-        np.save("prediction.npy",prediction)
+        np.save("prediction.npy", prediction)
         return prediction
 
     def score(self, X, y, sample_weight=None):
@@ -95,8 +95,10 @@ class RidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
     def set_save_path(self, save_path):
         self.save_path = save_path
 
+
 class HuberRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, alpha=0.0001, max_iter=100, epsilon=1.35, save_path=None):
+    def __init__(self, alpha=0.0001, max_iter=100, epsilon=1.35,
+                 save_path=None):
         super(HuberRegression, self).__init__()
         self.save_path = save_path
         self.epsilon = epsilon
@@ -105,7 +107,8 @@ class HuberRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
         self.model = None
 
     def fit(self, X, y):
-        self.model = HuberRegressor(epsilon=self.epsilon, alpha=self.alpha, max_iter=self.max_iter)
+        self.model = HuberRegressor(epsilon=self.epsilon, alpha=self.alpha,
+                                    max_iter=self.max_iter)
 
         self.model.fit(X, y)
 
@@ -126,7 +129,9 @@ class HuberRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
     def set_save_path(self, save_path):
         self.save_path = save_path
 
-class BayesianRidgeRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
+
+class BayesianRidgeRegression(skl.base.BaseEstimator,
+                              skl.base.TransformerMixin):
     def __init__(self, n_iter=300, save_path=None):
         super(BayesianRidgeRegression, self).__init__()
         self.save_path = save_path
@@ -210,7 +215,8 @@ class KernelEstimator(skl.base.BaseEstimator, skl.base.TransformerMixin):
         self.save_path = save_path
 
 
-class GaussianProcessRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
+class GaussianProcessRegression(skl.base.BaseEstimator,
+                                skl.base.TransformerMixin):
     def __init__(self, kernel=None, n_res_opt=5, alpha=None, save_path=None):
         super(GaussianProcessRegression, self).__init__()
         self.save_path = save_path
@@ -220,7 +226,12 @@ class GaussianProcessRegression(skl.base.BaseEstimator, skl.base.TransformerMixi
         self.model = None
 
     def fit(self, X, y):
-        self.model = GaussianProcessRegressor(alpha = self.alpha, kernel = self.kernel, normalize_y = True, n_restarts_optimizer=self.n_res_opt)
+        self.model = \
+            GaussianProcessRegressor(alpha=self.alpha,
+                                     kernel=self.kernel,
+                                     normalize_y=True,
+                                     n_restarts_optimizer=self.n_res_opt)
+
         print("opt restarts: {}".format(self.n_res_opt))
         print("alpha: {}".format(self.alpha))
         self.model.fit(X, y)
