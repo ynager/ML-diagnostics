@@ -64,9 +64,9 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         # crop data
         X = X[:, 25:145, 30:180, 35:155]
 
-        for f in range(X.shape[0]):
-            X[f] = anisodiff3(X[f], option=1, kappa=self.anis_kappa,
-                              niter=self.anis_niter)
+#for f in range(X.shape[0]):
+#           X[f] = anisodiff3(X[f], option=1, kappa=self.anis_kappa,
+#                             niter=self.anis_niter)
 
         # bins
         n_bins = self.nbins
