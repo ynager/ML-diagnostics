@@ -79,7 +79,7 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = X[:, 25:145, 30:180, 35:155]
         
         for f in range(X.shape[0]):
-            X[f] = anisodiff3(X[f], option=1, kappa=35, niter=10)
+             X[f] = anisodiff3(X[f], option=1, kappa=35, niter=2)
             # X[f] = image_histogram_equalization(X[f],number_bins=4000,max_value=4000)[0]
     
 
