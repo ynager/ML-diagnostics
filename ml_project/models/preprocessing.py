@@ -35,7 +35,7 @@ class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = check_array(X)
         X = X.reshape(-1, 176, 208, 176)
         # X_new = gaussian_filter(X,(0,0,4,4)) #filter
-        X_new = X[:, 50:150, 20:180, 20:180]
+        X_new = X[:, 40:160, 35:165, 35:165]
 
         print('Crop transform')
 
