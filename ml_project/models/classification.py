@@ -19,18 +19,20 @@ class MeanPredictor(BaseEstimator, TransformerMixin):
 from sklearn.ensemble import GradientBoostingClassifier
 class GradientBoostingClassification(BaseEstimator, TransformerMixin):
     
-    def __init__(self,learning_rate=0.1, n_estimators=100, verbose=1, subsample=1):
+    def __init__(self,learning_rate=0.1, n_estimators=100, verbose=1, subsample=1, max_depth=3):
         self.learning_rate = learning_rate
         self.n_estimators = n_estimators
         self.verbose = verbose
         self.subsample = subsample
+        self.max_depth = max_depth
                  
                  
     def fit(self, X, y):
         self.model = GradientBoostingClassifier(learning_rate=self.learning_rate,
                                                 n_estimators=self.n_estimators,
                                                 subsample=self.subsample,
-                                                verbose=self.verbose)
+                                                verbose=self.verbose,
+                                                max_depth=self.max_depth)
                                                 
         y = np.argmax(y,axis=1)
         self.model.fit(X, y)
