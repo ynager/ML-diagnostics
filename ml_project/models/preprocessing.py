@@ -1,6 +1,6 @@
 import sklearn as skl
 from sklearn.utils.validation import check_array
-# from scipy.ndimage.filters import gaussian_filter
+import scipy.ndimage as nd
 import numpy as np
 from ml_project.models.utils import make_blocks, anisodiff3
 
@@ -18,29 +18,38 @@ class ReduceResolution(skl.base.BaseEstimator, skl.base.TransformerMixin):
         print("ReduceResolution transformed")
         return X_new
 
-
-class Crop(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    """Flatten"""
-    def __init__(self, dim=2):
-        self.dim = dim
-        self.min = 0
-        self.max = 0
+class GaussianFilter(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def __init__(self, sigma):
+        self.sigma = sigma
 
     def fit(self, X, y=None):
-        self.min = X.min()
-        self.max = X.max()
         return self
 
     def transform(self, X, y=None):
-        X = check_array(X)
-        X = X.reshape(-1, 176, 208, 176)
-        # X_new = gaussian_filter(X,(0,0,4,4)) #filter
-        X_new = X[:, 40:160, 35:165, 35:165]
+        return nd.gaussian_filter(X, self.sigma)
 
-        print('Crop transform')
 
-        X_new = X_new.reshape(X_new.shape[0], -1)
-        return X_new
+class AnisotropicDiffusion(skl.base.BaseEstimator, skl.base.TransformerMixin):
+
+    def __init__(self, nx, ny, nz, kappa=50, niter=1):
+            self.kappa = kappa
+            self.niter = niter
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        X = X.reshape(-1, nx, ny, nz)
+        for f in range(X.shape[0]):
+            X[f] = anisodiff3(X[f],
+                              option=1,
+                              kappa=self.kappa,
+                              niter=self.niter)
+        X = X.reshape(X.shape[0], -1)
+        return X
+
+
+
 
 
 class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -62,11 +71,11 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = X.reshape(-1, 176, 208, 176)
 
         # crop data
-        X = X[:, 25:145, 30:180, 35:155]
+        # X = X[:,48:128,30:150,30:150]
+        X = X[:,58:118,70:150,30:110]
 
         for f in range(X.shape[0]):
-            X[f] = anisodiff3(X[f], option=1, kappa=self.anis_kappa,
-                              niter=self.anis_niter)
+         X[f] = anisodiff3(X[f], option=1, kappa=self.anis_kappa, niter=self.anis_niter)
 
         # bins
         n_bins = self.nbins
