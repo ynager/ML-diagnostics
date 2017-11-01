@@ -16,16 +16,17 @@ class MeanPredictor(BaseEstimator, TransformerMixin):
         n_samples, _ = X.shape
         return np.tile(self.mean, (n_samples, 1))
 
+
 from sklearn.ensemble import GradientBoostingClassifier
 class GradientBoostingClassification(BaseEstimator, TransformerMixin):
     
-    def __init__(self,learning_rate=0.1, n_estimators=100, verbose=1, subsample=1, max_depth=3, sw = True):
+    def __init__(self,learning_rate=0.1, n_estimators=100, verbose=1, subsample=1, max_depth=3, p_threshold=1):
         self.learning_rate = learning_rate
         self.n_estimators = n_estimators
         self.verbose = verbose
         self.subsample = subsample
         self.max_depth = max_depth
-        self.sw = sw
+        self.p_threshold = p_threshold
                  
                  
     def fit(self, X, y, sample_weight=None):
@@ -36,29 +37,17 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                                                 verbose=self.verbose,
                                                 max_depth=self.max_depth)
         
-        if self.sw:
-            Xnew = np.zeros((X.shape[0]*y.shape[1],X.shape[1]))
-            ynew = np.zeros((X.shape[0]*y.shape[1]))
-            w = np.zeros((X.shape[0]*y.shape[1]))
-            
+        w = np.ones((X.shape[0]))
+        yn = np.argmax(y,axis=1)
+        
+        if self.p_threshold < 1:
             for i in range(X.shape[0]):
-                Xnew[y.shape[1]*i:y.shape[1]*i+y.shape[1],:] = X[i,:]
-                ynew[y.shape[1]*i:y.shape[1]*i+y.shape[1]] = np.arange(y.shape[1])
-                w[y.shape[1]*i:y.shape[1]*i+y.shape[1]] = y[i,:]
+                if(np.max(y[i]) < self.p_threshold):
+                    w[i] = 0.001
+                else:
+                    w[i] = np.max(y[i])
         
-            print(X[0,0:50])
-            print(Xnew[2,0:50])
-            print(Xnew[3,0:50])
-            print(y[0])
-            print(ynew)
-            print(w)
-            self.model.fit(Xnew, ynew, w)
-
-    
-        else:
-            y = np.argmax(y,axis=1)
-            self.model.fit(X, y)
-        
+        self.model.fit(X, yn, w)
         return self
 
 
@@ -76,32 +65,27 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
 from sklearn.svm import SVC
 class SupportVectorClassification(BaseEstimator, TransformerMixin):
 
-    def __init__(self, C=1, kernel='rbf', probability=True):
+    def __init__(self, C=1, kernel='rbf', probability=True, p_threshold=1):
         self.probability = probability
         self.kernel = kernel
         self.C = C
+        self.p_threshold = p_threshold
 
     def fit(self, X, y):
         self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability, verbose=True)
     
     
-        if True:
-            Xnew = np.zeros((X.shape[0]*y.shape[1],X.shape[1]))
-            ynew = np.zeros((X.shape[0]*y.shape[1]))
-            w = np.zeros((X.shape[0]*y.shape[1]))
-            
+        w = np.ones((X.shape[0]))
+        yn = np.argmax(y,axis=1)
+        
+        if self.p_threshold < 1:
             for i in range(X.shape[0]):
-                Xnew[y.shape[1]*i:y.shape[1]*i+y.shape[1],:] = X[i,:]
-                ynew[y.shape[1]*i:y.shape[1]*i+y.shape[1]] = np.arange(y.shape[1])
-                w[y.shape[1]*i:y.shape[1]*i+y.shape[1]] = y[i,:]
-    
-            self.model.fit(Xnew, ynew, w)
-        
-        
-        else:
-            y = np.argmax(y,axis=1)
-            self.model.fit(X, y)
+                if(np.max(y[i]) < self.p_threshold):
+                    w[i] = 0.001
+                else:
+                    w[i] = np.max(y[i])
 
+        self.model.fit(X, yn, w)
         return self
 
     def predict(self, X):
