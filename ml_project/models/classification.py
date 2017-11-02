@@ -1,7 +1,9 @@
 import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted
 from scipy import stats
+from sklearn.utils import resample
 
 
 class MeanPredictor(BaseEstimator, TransformerMixin):
@@ -37,8 +39,10 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                                                 verbose=self.verbose,
                                                 max_depth=self.max_depth)
         
-        w = np.ones((X.shape[0]))
         yn = np.argmax(y,axis=1)
+        
+        # create sample weights
+        w = np.ones((X.shape[0]))
         
         if self.p_threshold < 1:
             for i in range(X.shape[0]):
@@ -47,7 +51,26 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                 else:
                     w[i] = np.max(y[i])
         
-        self.model.fit(X, yn, w)
+        # upsample minority classed
+        X_0 = X[yn==0]
+        X_1 = X[yn==1]
+        X_2 = X[yn==2]
+        X_3 = X[yn==3]
+        
+        w_0 = w[yn==0]
+        w_1 = w[yn==1]
+        w_2 = w[yn==2]
+        w_3 = w[yn==3]
+        
+        X_1_up, w_1_up = resample(X_1, w_1, n_samples = X_0.shape[0], replace=True, random_state=123)
+        X_2_up, w_2_up = resample(X_2, w_2, n_samples = X_0.shape[0], replace=True, random_state=123)
+        X_3_up, w_3_up = resample(X_3, w_3, n_samples = X_0.shape[0], replace=True, random_state=123)
+        
+        Xu = np.concatenate((X_0, X_1_up, X_2_up, X_3_up))
+        wu = np.concatenate((w_0, w_1_up, w_2_up, w_3_up))
+        yu = np.concatenate((0*np.ones(X_0.shape[0]), 1*np.ones(X_0.shape[0]), 2*np.ones(X_0.shape[0]), 3*np.ones(X_0.shape[0])))
+        
+        self.model.fit(Xu, yu, wu)
         return self
 
 
@@ -111,7 +134,7 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
         self.p_threshold = p_threshold
 
     def fit(self, X, y):
-        self.model = RandomForestClassifier(n_estimators=self.n_estimators, bootstrap=self.bootstrap, class_weight=self.class_weight)
+        self.model = RandomForestClassifier(n_estimators=self.n_estimators, bootstrap=self.bootstrap, class_weight=self.class_weight, verbose=1)
         
         w = np.ones((X.shape[0]))
         yn = np.argmax(y,axis=1)
