@@ -32,7 +32,7 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                  
                  
     def fit(self, X, y, sample_weight=None):
-        
+        print("X shape: {}" .format(X.shape))
         self.model = GradientBoostingClassifier(learning_rate=self.learning_rate,
                                                 n_estimators=self.n_estimators,
                                                 subsample=self.subsample,
@@ -95,6 +95,7 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
         self.p_threshold = p_threshold
 
     def fit(self, X, y):
+        print("X shape: {}" .format(X.shape))
         self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability, class_weight='balanced')
     
     
@@ -134,6 +135,7 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
         self.p_threshold = p_threshold
 
     def fit(self, X, y):
+        print("X shape: {}" .format(X.shape))
         self.model = RandomForestClassifier(n_estimators=self.n_estimators, bootstrap=self.bootstrap, class_weight=self.class_weight, verbose=1)
         
         w = np.ones((X.shape[0]))
