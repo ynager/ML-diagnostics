@@ -101,9 +101,46 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
         return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
 
 
+from sklearn.ensemble import RandomForestClassifier
+class RandomForestClassification(BaseEstimator, TransformerMixin):
 
+    def __init__(self, n_estimators=10, bootstrap=False, class_weight=None, p_threshold=1):
+        self.n_estimators = n_estimators
+        self.bootstrap = bootstrap
+        self.class_weight = class_weight
+        self.p_threshold = p_threshold
 
+    def fit(self, X, y):
+        self.model = RandomForestClassifier(n_estimators=self.n_estimators, bootstrap=self.bootstrap, class_weight=self.class_weight)
+        
+        w = np.ones((X.shape[0]))
+        yn = np.argmax(y,axis=1)
+        
+        if self.p_threshold < 1:
+            for i in range(X.shape[0]):
+                if(np.max(y[i]) < self.p_threshold):
+                    w[i] = 0.001
+                else:
+                    w[i] = np.max(y[i])
 
+        self.model.fit(X, yn, w)
+        return self
+
+    def set_params(**params):
+        self.model.set_params(**params)
+        return self
+    
+    def predict(self, X):
+        return self.model.predict(X)
+    
+    def predict_proba(self, X):
+        pred =  self.model.predict_proba(X)
+        print(pred)
+        return pred
+    
+    def score(self, X, y):
+        ypred = self.predict_proba(X)
+        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
 
 
 
