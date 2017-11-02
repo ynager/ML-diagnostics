@@ -49,6 +49,25 @@ class AnisotropicDiffusion(skl.base.BaseEstimator, skl.base.TransformerMixin):
         return X
 
 
+class TransformToCubes(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def __init__(self, d, xdim, ydim, zdim):
+        self.d = d
+        self.xdim = xdim
+        self.ydim = ydim
+        self.zdim = zdim
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X, y=None):
+        X = X.reshape(-1, self.xdim, self.ydim, self.zdim)
+        Xnew = np.zeros((X.shape[0], self.xdim//self.d * self.ydim//self.d * self.zdim//self.d, self.d, self.d, self.d))
+        for i in range(X.shape[0]):
+            Xnew[i] = make_blocks(X[i], self.d)
+
+        return Xnew
+
+
 
 
 
