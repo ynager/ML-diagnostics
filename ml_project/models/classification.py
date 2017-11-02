@@ -72,7 +72,7 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
         self.p_threshold = p_threshold
 
     def fit(self, X, y):
-        self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability)
+        self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability, class_weight='balanced')
     
     
         w = np.ones((X.shape[0]))
@@ -92,8 +92,10 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
         return self.model.predict(X)
 
     def predict_proba(self, X):
-        return self.model.predict_proba(X)
-
+        pred =  self.model.predict_proba(X)
+        print(pred)
+        return pred
+    
     def score(self, X, y):
         ypred = self.predict_proba(X)
         return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
