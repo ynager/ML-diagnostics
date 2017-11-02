@@ -72,7 +72,7 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
         self.p_threshold = p_threshold
 
     def fit(self, X, y):
-        self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability, verbose=True)
+        self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability)
     
     
         w = np.ones((X.shape[0]))

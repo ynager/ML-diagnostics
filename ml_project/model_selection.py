@@ -43,6 +43,13 @@ class GridSearchCV(GridSearchCV):
 
             if hasattr(self.best_estimator_, "save_path"):
                 self.best_estimator_.set_save_path(self.save_path)
+        print("*******************************")
+        print("best params: {} " .format(self.best_params_))
+        print("best score: {}" .format(self.best_score_))
+        print("best index: {}" .format(self.best_index_))
+        print("*******************************")
+        
+        
 
         return self
 
