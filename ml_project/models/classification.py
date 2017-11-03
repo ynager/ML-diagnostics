@@ -37,8 +37,7 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                                                 n_estimators=self.n_estimators,
                                                 subsample=self.subsample,
                                                 verbose=self.verbose,
-                                                max_depth=self.max_depth,
-                                                loss='exponential')
+                                                max_depth=self.max_depth)
         
         yn = np.argmax(y,axis=1)
         
@@ -72,6 +71,7 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
         #yu = np.concatenate((0*np.ones(X_0.shape[0]), 1*np.ones(X_0.shape[0]), 2*np.ones(X_0.shape[0]), 3*np.ones(X_0.shape[0])))
         
         #self.model.fit(Xu, yu, wu)
+        print(yn)
         self.model.fit(X, yn, w)
         return self
 
@@ -146,7 +146,7 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
         if self.p_threshold < 1:
             for i in range(X.shape[0]):
                 if(np.max(y[i]) < self.p_threshold):
-                    w[i] = 0.001
+                    w[i] = 0.2
                 else:
                     w[i] = np.max(y[i])
 

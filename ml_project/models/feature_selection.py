@@ -1,4 +1,5 @@
 from sklearn.base import BaseEstimator, TransformerMixin
+import numpy as np
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
@@ -58,20 +59,20 @@ class NonZeroSelection(BaseEstimator, TransformerMixin):
         return X[:, self.nonzero]
 
 
-class SelectK(BaseEstimator, TransformerMixin):
+class KBest(BaseEstimator, TransformerMixin):
     def __init__(self, k=50):
         self.k = k
         self.model = None
 
     def fit(self, X, y):
         self.model = SelectKBest(f_regression, k=self.k)
-        self.model.fit(X, y)
-        print("SelectKBest fitted")
+        yn = np.argmax(y,axis=1)
+        self.model.fit(X, yn)
         return self
 
     def transform(self, X, y=None):
         X_new = self.model.transform(X)
-        print("SelectKBest transformed")
+        print("Selected " + str(X_new.shape[1]) + " best from " + str(X.shape[1]))
         return X_new
 
 

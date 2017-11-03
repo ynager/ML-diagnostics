@@ -34,12 +34,16 @@ class AnisotropicDiffusion(skl.base.BaseEstimator, skl.base.TransformerMixin):
     def __init__(self, nx, ny, nz, kappa=50, niter=1):
             self.kappa = kappa
             self.niter = niter
+            self.nx = nx
+            self.ny = ny
+            self.nz = nz
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X, y=None):
-        X = X.reshape(-1, nx, ny, nz)
+        print("running Anisotropi Diffusion...")
+        X = X.reshape(-1, self.nx, self.ny, self.nz)
         for f in range(X.shape[0]):
             X[f] = anisodiff3(X[f],
                               option=1,
@@ -60,7 +64,6 @@ class TransformToCubes(skl.base.BaseEstimator, skl.base.TransformerMixin):
         
         num_cubes = np.zeros(len(X), dtype=np.int)
         for seg in range(len(X)):
-            print(seg)
             num_cubes[seg] = X[seg].shape[1]//self.d * X[seg].shape[2]//self.d * X[seg].shape[3]//self.d
             print("# cubes: {} " .format(num_cubes[seg]))
         
