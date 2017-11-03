@@ -6,7 +6,7 @@ from os.path import normpath
 class GridSearchCV(GridSearchCV):
     """docstring for GridSearchCV"""
 
-    def __init__(self, est_class, est_params, param_grid, cv=None, n_jobs=-1,
+    def __init__(self, est_class, est_params, param_grid, cv=None, n_jobs=25, pre_dispatch="2*n_jobs",
                  error_score="raise", save_path=None, **kwargs):
 
         self.est_class = est_class

@@ -50,21 +50,43 @@ class AnisotropicDiffusion(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
 
 class TransformToCubes(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, d, xdim, ydim, zdim):
+    def __init__(self, d):
         self.d = d
-        self.xdim = xdim
-        self.ydim = ydim
-        self.zdim = zdim
 
     def fit(self, X, y):
         return self
 
     def transform(self, X, y=None):
-        X = X.reshape(-1, self.xdim, self.ydim, self.zdim)
-        Xnew = np.zeros((X.shape[0], self.xdim//self.d * self.ydim//self.d * self.zdim//self.d, self.d, self.d, self.d))
-        for i in range(X.shape[0]):
-            Xnew[i] = make_blocks(X[i], self.d)
+        
+        num_cubes = np.zeros(len(X), dtype=np.int)
+        for seg in range(len(X)):
+            print(seg)
+            num_cubes[seg] = X[seg].shape[1]//self.d * X[seg].shape[2]//self.d * X[seg].shape[3]//self.d
+            print("# cubes: {} " .format(num_cubes[seg]))
+        
+        Xnew = np.zeros((X[0].shape[0],
+                            num_cubes[0],
+                            self.d,
+                            self.d,
+                            self.d))
+                            
 
+        for samp in range(X[0].shape[0]):
+            Xnew[samp] = make_blocks(X[0][samp], self.d)
+        
+        for seg in range(1, len(X)):
+            Xseg = np.zeros((X[seg].shape[0],
+                             num_cubes[seg],
+                             self.d,
+                             self.d,
+                             self.d))
+                             
+            for samp in range(X[seg].shape[0]):
+                Xseg[samp] = make_blocks(X[seg][samp], self.d)
+            
+            Xnew = np.concatenate((Xnew, Xseg), axis = 1)
+
+        print("X shape after cubing: {}" .format(Xnew.shape))
         return Xnew
 
 

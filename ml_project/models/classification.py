@@ -32,12 +32,13 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                  
                  
     def fit(self, X, y, sample_weight=None):
-        print("X shape: {}" .format(X.shape))
+        print("X shape before classification: {}" .format(X.shape))
         self.model = GradientBoostingClassifier(learning_rate=self.learning_rate,
                                                 n_estimators=self.n_estimators,
                                                 subsample=self.subsample,
                                                 verbose=self.verbose,
-                                                max_depth=self.max_depth)
+                                                max_depth=self.max_depth,
+                                                loss='exponential')
         
         yn = np.argmax(y,axis=1)
         

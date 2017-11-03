@@ -2,21 +2,24 @@ from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
 
 class Crop(BaseEstimator, TransformerMixin):
-    def __init__(self, xmin, xmax, ymin, ymax, zmin, zmax):
-        self.xmin = xmin
-        self.xmax = xmax
-        self.ymin = ymin
-        self.ymax = ymax
-        self.zmin = zmin
-        self.zmax = zmax
+    def __init__(self, xmin1, xmax1, ymin1, ymax1, zmin1, zmax1, xmin2=None, xmax2=None, ymin2=None, ymax2=None, zmin2=None, zmax2=None):
+
+        self.v1 = (xmin1, xmax1, ymin1, ymax1, zmin1, zmax1)
+        self.v2 = (xmin2, xmax2, ymin2, ymax2, zmin2, zmax2)
     
     def fit(self, X, y=None):
         return self
     
     def transform(self, X, y=None):
         X = X.reshape(-1, 176, 208, 176)
-        X_new = X[:, self.xmin:self.xmax, self.ymin:self.ymax, self.zmin:self.zmax]
-        X_new = X_new.reshape(X_new.shape[0], -1)
+        
+        X_crop1 = X[:, self.v1[0]:self.v1[1], self.v1[2]:self.v1[3], self.v1[4]:self.v1[5]]
+        
+        if self.v2[0]:
+            X_crop2 = X[:, self.v2[0]:self.v2[1], self.v2[2]:self.v2[3], self.v2[4]:self.v2[5]]
+            X_new = (X_crop1, X_crop2)
+        else:
+            X_new = (X_crop1,)
 
         return X_new
 
@@ -32,13 +35,16 @@ class Histogramize3d(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
 
         if (X.ndim == 5):
-            H = np.zeros((X.shape[0], X.shape[1], self.n_bins), dtype=np.int32)
+            H = np.zeros((X.shape[0], X.shape[1], self.n_bins+3), dtype=np.int32)
             for samp in range(X.shape[0]):
                 for cub in range(X.shape[1]):
-                    H[samp, cub, :] = np.histogram(X[samp,cub, :],
-                                                   bins=self.n_bins,
-                                                   range=(self.rmin,
-                                                          self.rmax))[0]
+                    H[samp, cub, 0:self.n_bins] = np.histogram(X[samp, cub, :],
+                                                               bins=self.n_bins,
+                                                               range=(self.rmin,
+                                                                      self.rmax))[0]
+                    H[samp, cub, self.n_bins] = np.mean(X[samp, cub])
+                    H[samp, cub, self.n_bins+1] = np.median(X[samp, cub])
+                    H[samp, cub, self.n_bins+2] = np.var(X[samp, cub])
         else:
             H = np.zeros((X.shape[0], self.n_bins), dtype=np.int32)
             for samp in range(X.shape[0]):
@@ -46,7 +52,6 @@ class Histogramize3d(BaseEstimator, TransformerMixin):
                                           bins=self.n_bins,
                                           range=(self.rmin,
                                                  self.rmax))[0]
-
 
         Hflat = H.reshape(H.shape[0], -1)
         return Hflat
