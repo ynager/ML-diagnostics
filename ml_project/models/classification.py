@@ -71,7 +71,6 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
         #yu = np.concatenate((0*np.ones(X_0.shape[0]), 1*np.ones(X_0.shape[0]), 2*np.ones(X_0.shape[0]), 3*np.ones(X_0.shape[0])))
         
         #self.model.fit(Xu, yu, wu)
-        print(yn)
         self.model.fit(X, yn, w)
         return self
 
@@ -119,7 +118,7 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
 
     def predict_proba(self, X):
         pred =  self.model.predict_proba(X)
-        print(pred)
+        print("Prediction: " + str(pred))
         return pred
     
     def score(self, X, y):
@@ -162,7 +161,7 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
     
     def predict_proba(self, X):
         pred =  self.model.predict_proba(X)
-        print(pred)
+        print("Prediction: " + str(pred))
         return pred
     
     def score(self, X, y):
