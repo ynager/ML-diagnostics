@@ -31,25 +31,23 @@ class GaussianFilter(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
 class AnisotropicDiffusion(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
-    def __init__(self, nx, ny, nz, kappa=50, niter=1):
+    def __init__(self, kappa=50, niter=1):
             self.kappa = kappa
             self.niter = niter
-            self.nx = nx
-            self.ny = ny
-            self.nz = nz
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X, y=None):
         print("running Anisotropi Diffusion...")
-        X = X.reshape(-1, self.nx, self.ny, self.nz)
-        for f in range(X.shape[0]):
-            X[f] = anisodiff3(X[f],
-                              option=1,
-                              kappa=self.kappa,
-                              niter=self.niter)
-        X = X.reshape(X.shape[0], -1)
+        
+        for sec in range(len(X)):
+            print("running aniso for sec " + str(sec))
+            for f in range(X[0].shape[0]):
+                X[sec][f] = anisodiff3(X[sec][f],
+                                       option=1,
+                                       kappa=self.kappa,
+                                       niter=self.niter)
         return X
 
 
