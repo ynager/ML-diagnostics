@@ -1,6 +1,35 @@
 import numpy as np
 
 
+from sklearn.model_selection import cross_val_score
+from sklearn.externals import joblib
+from sklearn.utils import resample
+
+def crossvalscore(path_m, path_x, path_y, k):
+    
+    clf = joblib.load(path_m)
+    X = np.load(path_x)
+    y = np.loadtxt(path_y)
+    
+    
+    # upsample minority classed
+    yn = np.argmax(y,axis=1)
+    X_0 = X[yn==0]
+    X_1 = X[yn==1]
+    X_2 = X[yn==2]
+    X_3 = X[yn==3]
+
+    X_1_up = resample(X_1, n_samples = X_0.shape[0], replace=True, random_state=123)
+    X_2_up = resample(X_2, n_samples = X_0.shape[0], replace=True, random_state=123)
+    X_3_up = resample(X_3, n_samples = X_0.shape[0], replace=True, random_state=123)
+    
+    Xu = np.concatenate((X_0, X_1_up, X_2_up, X_3_up))
+    yu = np.concatenate((0*np.ones(X_0.shape[0]), 1*np.ones(X_0.shape[0]), 2*np.ones(X_0.shape[0]), 3*np.ones(X_0.shape[0])))
+    
+    scores = cross_val_score(clf, Xu, yu, cv=k)
+    print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+
+
 def make_blocks(X, t):
     xdim = range(0, X.shape[0], t)
     ydim = range(0, X.shape[1], t)
