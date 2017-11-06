@@ -284,3 +284,43 @@ class RandomForestRegression(skl.base.BaseEstimator,
         ypred = self.predict(X)
         return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
 
+
+from sklearn.ensemble import GradientBoostingRegressor
+class GradientBoostingRegression(skl.base.BaseEstimator,
+                                 skl.base.TransformerMixin):
+    
+    def __init__(self,learning_rate=0.1, loss='ls', n_estimators=100, verbose=1, subsample=1, max_depth=3):
+        
+        self.loss = loss
+        self.learning_rate = learning_rate
+        self.n_estimators = n_estimators
+        self.verbose = verbose
+        self.subsample = subsample
+        self.max_depth = max_depth
+    
+    
+    def fit(self, X, y, sample_weight=None):
+        print("X shape before classification: {}" .format(X.shape))
+        self.model = GradientBoostingRegressor(learning_rate=self.learning_rate,
+                                               loss=self.loss,
+                                               n_estimators=self.n_estimators,
+                                               subsample=self.subsample,
+                                               verbose=self.verbose,
+                                               max_depth=self.max_depth)
+
+        self.model.fit(X, y)
+        return self
+                                                                    
+
+    def predict(self, X):
+        self.model.predict(X)
+    
+    def predict_proba(self, X):
+        y_pred = self.predict(X)
+        return y_pred
+    
+    def score(self, X, y):
+        ypred = self.predict_proba(X)
+        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
+
+
