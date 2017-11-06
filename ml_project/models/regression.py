@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from matplotlib import pyplot as plt
+from scipy import stats
 
 from sklearn.svm import SVR
 from sklearn.linear_model import Ridge
@@ -251,3 +252,34 @@ class GaussianProcessRegression(skl.base.BaseEstimator,
 
     def set_save_path(self, save_path):
         self.save_path = save_path
+
+from sklearn.ensemble import RandomForestRegressor
+class RandomForestRegression(skl.base.BaseEstimator,
+                             skl.base.TransformerMixin):
+    
+    def __init__(self, n_estimators=10, bootstrap=False):
+        self.n_estimators = n_estimators
+        self.bootstrap = bootstrap
+        self.model = RandomForestRegressor(n_estimators=self.n_estimators, bootstrap=self.bootstrap, verbose=1)
+    
+    def fit(self, X, y):
+        print("Fitting {} Trees in RandomForest..." .format(self.n_estimators))
+        self.model.fit(X, y)
+    
+        return self
+
+
+    def predict(self, X):
+        pred = self.model.predict(X)
+        print("Prediction: " + str(pred))
+        return pred
+    
+    def predict_proba(self, X):
+        pred =  self.model.predict(X)
+        print("Prediction: " + str(pred))
+        return pred
+    
+    def score(self, X, y):
+        ypred = self.predict(X)
+        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
+

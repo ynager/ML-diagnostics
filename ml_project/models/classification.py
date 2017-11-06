@@ -168,5 +168,46 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
         ypred = self.predict_proba(X)
         return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
 
+from sklearn.neural_network import MLPRegressor
 
+class MLPRegression(BaseEstimator, TransformerMixin):
+    def __init__(self, hidden_layer_sizes1=100, hidden_layer_sizes2=1, activation='relu', solver='adam', alpha='0.0001', learning_rate='constant', max_iter=200, verbose=False, early_stopping=False, validation_fraction=0.1):
 
+        self.hidden_layer_sizes = (50,50,50,50)
+        self.activation = activation
+        self.solver = solver
+        self.alpha = alpha
+        self.learning_rate = learning_rate
+        self.max_iter = max_iter
+        self.verbose = verbose
+        self.early_stopping = early_stopping
+        self.validation_fraction = validation_fraction
+        self.model = MLPRegressor(hidden_layer_sizes=self.hidden_layer_sizes,
+                                   activation=self.activation,
+                                   solver=self.solver,
+                                   alpha=self.alpha,
+                                   learning_rate=self.learning_rate,
+                                   max_iter=self.max_iter,
+                                   verbose=self.verbose,
+                                   early_stopping=self.early_stopping,
+                                   validation_fraction=self.validation_fraction)
+
+    def fit(self, X, y):
+        
+        #yn = np.zeros(y.shape)
+        #for l in range(y.shape[0]):
+        #    it = [i[0] for i in sorted(enumerate(y[l]), key=lambda x:x[1])]
+        #    yn[l,it] = [0,1,2,3]
+        
+        #print(yn)
+        self.model.fit(X, y)
+        return self
+        
+    def predict_proba(self, X):
+        pred = self.model.predict(X)
+        print(pred)
+        return pred
+    
+    def score(self, X, y):
+        ypred = self.predict_proba(X)
+        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
