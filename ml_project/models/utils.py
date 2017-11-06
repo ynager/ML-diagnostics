@@ -12,13 +12,12 @@ def crossvalscore(path_m, path_x, path_y, k):
     X = np.load(path_x)
     y_prob = np.loadtxt(path_y)
     
-    # upsample minority classed
     yn = np.argmax(y_prob,axis=1)
     
     #print(yn)
     cv = StratifiedKFold(yn, k)
     print("Starting " + str(k) + "-fold cross-validation...")
-    scores = cross_val_score(clf, X, y_prob, cv=cv, n_jobs = 2)
+    scores = cross_val_score(clf, X, y_prob, cv=cv)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 
