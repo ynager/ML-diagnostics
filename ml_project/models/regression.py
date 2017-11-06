@@ -242,13 +242,14 @@ class GaussianProcessRegression(skl.base.BaseEstimator,
         X = check_array(X)
         prediction = self.model.predict(X)
         print("Gaussian predicted")
-        prediction[prediction < 18] = 18
         return prediction
-
-    def score(self, X, y, sample_weight=None):
-        scores = (self.predict(X) - y)**2 / len(y)
-        score = np.sum(scores)
-        return -score
+    
+    def predict_proba(self, X):
+        return self.predict(X)
+    
+    def score(self, X, y):
+        ypred = self.predict(X)
+        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
 
     def set_save_path(self, save_path):
         self.save_path = save_path
