@@ -50,26 +50,7 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                     w[i] = 0.001
                 else:
                     w[i] = np.max(y[i])
-        
-        # upsample minority classed
-        #X_0 = X[yn==0]
-        #X_1 = X[yn==1]
-        #X_2 = X[yn==2]
-        #X_3 = X[yn==3]
-        
-        #w_0 = w[yn==0]
-        #w_1 = w[yn==1]
-        #w_2 = w[yn==2]
-        #w_3 = w[yn==3]
-        
-        #X_1_up, w_1_up = resample(X_1, w_1, n_samples = X_0.shape[0], replace=True, random_state=123)
-        #X_2_up, w_2_up = resample(X_2, w_2, n_samples = X_0.shape[0], replace=True, random_state=123)
-        #X_3_up, w_3_up = resample(X_3, w_3, n_samples = X_0.shape[0], replace=True, random_state=123)
-        
-        #Xu = np.concatenate((X_0, X_1_up, X_2_up, X_3_up))
-        #wu = np.concatenate((w_0, w_1_up, w_2_up, w_3_up))
-        #yu = np.concatenate((0*np.ones(X_0.shape[0]), 1*np.ones(X_0.shape[0]), 2*np.ones(X_0.shape[0]), 3*np.ones(X_0.shape[0])))
-        
+    
         #self.model.fit(Xu, yu, wu)
         self.model.fit(X, yn, w)
         return self
