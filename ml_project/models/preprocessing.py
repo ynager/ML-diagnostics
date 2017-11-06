@@ -40,6 +40,8 @@ class AnisotropicDiffusion(skl.base.BaseEstimator, skl.base.TransformerMixin):
 
     def transform(self, X, y=None):
         print("running Anisotropi Diffusion...")
+        if (self.niter == 0):
+            return X
         
         for sec in range(len(X)):
             print("running aniso for sec " + str(sec))
