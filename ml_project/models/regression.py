@@ -264,6 +264,15 @@ class RandomForestRegression(skl.base.BaseEstimator,
         self.model = RandomForestRegressor(n_estimators=self.n_estimators, bootstrap=self.bootstrap, verbose=1)
     
     def fit(self, X, y):
+
+#        w = np.ones(X.shape[0])
+#        yn = np.argmax(y,axis=1)
+#        count = np.bincount(yn)
+#        w[yn == 0] = 4*X.shape[0] / (X.shape[0] * np.bincount(yn)[0])
+#        w[yn == 1] = 4*X.shape[0] / (X.shape[0] * np.bincount(yn)[1])
+#        w[yn == 2] = 4*X.shape[0] / (X.shape[0] * np.bincount(yn)[2])
+#        w[yn == 3] = 4*X.shape[0] / (X.shape[0] * np.bincount(yn)[3])
+
         print("Fitting {} Trees in RandomForest..." .format(self.n_estimators))
         self.model.fit(X, y)
     
