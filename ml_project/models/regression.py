@@ -333,3 +333,50 @@ class GradientBoostingRegression(skl.base.BaseEstimator,
         return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
 
 
+from sklearn.linear_model import LogisticRegression
+class LogisticRegressor(skl.base.BaseEstimator,
+                         skl.base.TransformerMixin):
+
+    def __init__(self, C=1, dual=False, class_weight='balanced', solver='sag', multi_class='ovr', n_jobs=1):
+        self.C = C
+        self.class_weight = class_weight
+        self.solver = solver
+        self.multi_class = multi_class
+        self.n_jobs = n_jobs
+        self.dual = dual
+
+        self.model = LogisticRegression(C=self.C,
+                                        class_weight=self.class_weight,
+                                        solver=self.solver,
+                                        multi_class=self.multi_class,
+                                        n_jobs=self.n_jobs,
+                                        dual=self.dual)
+
+    def fit(self, X, y):
+        
+        
+        Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
+        yn = np.zeros(X.shape[0]*y.shape[1])
+        wn = np.ones(X.shape[0]*y.shape[1])
+        
+        for i in range(X.shape[0]*y.shape[1]):
+            Xn[i,:] = X[i // y.shape[1]]
+            yn[i] = i % y.shape[1]
+            wn[i] = y[i // y.shape[1],i % y.shape[1]]
+    
+        self.model.fit(Xn, yn, wn)
+        return self
+
+    def predict(self, X):
+        self.model.predict(X)
+    
+    def predict_proba(self, X):
+        y_pred = self.model.predict_proba(X)
+        return y_pred
+    
+    def score(self, X, y):
+        ypred = self.predict_proba(X)
+        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
+
+
+
