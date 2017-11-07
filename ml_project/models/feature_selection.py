@@ -3,30 +3,32 @@ import numpy as np
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_array, check_is_fitted
 from sklearn.utils.random import sample_without_replacement
-from sklearn.decomposition import PCA
+from sklearn.decomposition import KernelPCA
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 
 
-class PrincipleComponentAnalysis(BaseEstimator, TransformerMixin):
-    """PCA dimensionality reduction"""
-    def __init__(self, n_components=1000):
-        self.n_components = n_components
-        self.model = None
+class KPCA(BaseEstimator, TransformerMixin):
+    def __init__(self, kernel='linear', is_on=1):
+        self.is_on = is_on
+        self.kernel = kernel
+        self.model = KernelPCA(kernel=self.kernel)
 
     def fit(self, X, y=None):
-        self.model = PCA(whiten=False, n_components=self.n_components)
-        X = check_array(X)
-        self.model.fit(X)
-        print("PCA fitted")
+        if(self.is_on == 1):
+            X = check_array(X)
+            self.model.fit(X)
+            print("PCA fitted")
         return self
 
     def transform(self, X, y=None):
-        check_is_fitted(self, ["model"])
-        X = check_array(X)
-        X_new = self.model.transform(X)
-        print("PCA transformed")
-        return X_new
+        if(self.is_on == 1):
+            X_new = self.model.transform(X)
+            print("PCA transformed")
+            return X_new
+        else:
+            return X
+
 
 
 class VarianceThreshold(BaseEstimator, TransformerMixin):
