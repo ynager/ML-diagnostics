@@ -1,5 +1,6 @@
 from sklearn.model_selection import GridSearchCV
 import pandas as pd
+import numpy as np
 from os.path import normpath
 
 
@@ -58,3 +59,18 @@ class GridSearchCV(GridSearchCV):
         if (hasattr(self, "best_estimator_") and
            hasattr(self.best_estimator_, "save_path")):
             self.best_estimator_.set_save_path(save_path)
+
+from sklearn.model_selection import StratifiedKFold
+class SKFold():
+    def __init__(self, n_splits, shuffle):
+        self.n_splits = n_splits
+        self.shuffle = shuffle
+
+        self.model = StratifiedKFold(n_splits=self.n_splits, shuffle=self.shuffle)
+
+    def get_n_splits(self, X=None, y=None, groups=None):
+        return self.model.get_n_splits(X, y)
+
+    def split(self, X, y, groups=None):
+        y = np.argmax(y,axis=1)
+        return self.model.split(X, y)
