@@ -337,24 +337,28 @@ from sklearn.linear_model import LogisticRegression
 class LogisticRegressor(skl.base.BaseEstimator,
                          skl.base.TransformerMixin):
 
-    def __init__(self, C=1, dual=False, class_weight='balanced', solver='sag', multi_class='ovr', n_jobs=1):
+    def __init__(self, C, solver, multi_class, dual=False, class_weight='balanced', n_jobs=1, max_iter=100, verbose=0):
         self.C = C
         self.class_weight = class_weight
         self.solver = solver
         self.multi_class = multi_class
         self.n_jobs = n_jobs
         self.dual = dual
+        self.max_iter = max_iter
+        self.verbose = verbose
 
         self.model = LogisticRegression(C=self.C,
                                         class_weight=self.class_weight,
                                         solver=self.solver,
                                         multi_class=self.multi_class,
                                         n_jobs=self.n_jobs,
-                                        dual=self.dual)
+                                        dual=self.dual,
+                                        max_iter=self.max_iter,
+                                        verbose=self.verbose)
 
     def fit(self, X, y):
         
-        
+        print("Logistic Regressor with C = " + str(self.C))
         Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
         yn = np.zeros(X.shape[0]*y.shape[1])
         wn = np.ones(X.shape[0]*y.shape[1])
