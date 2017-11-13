@@ -2,10 +2,10 @@ import numpy as np
 
 
 from sklearn.model_selection import cross_val_score
-from sklearn.cross_validation import StratifiedKFold
 from sklearn.model_selection import KFold
 from sklearn.externals import joblib
 from sklearn.utils import resample
+from ml_project.model_selection import SKFold
 
 def crossvalscore(path_m, path_x, path_y, k):
     
@@ -13,9 +13,7 @@ def crossvalscore(path_m, path_x, path_y, k):
     X = np.load(path_x)
     y_prob = np.loadtxt(path_y)
     
-    yn = np.argmax(y_prob,axis=1)
-    cv = StratifiedKFold(yn, k)
-    #cv = KFold(n_splits=k)
+    cv = SKFold(n_splits=k, shuffle=True)
     print("Starting " + str(k) + "-fold cross-validation...")
     scores = cross_val_score(clf, X, y_prob, cv=cv)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
