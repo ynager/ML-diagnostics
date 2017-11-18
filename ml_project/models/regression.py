@@ -258,23 +258,27 @@ from sklearn.ensemble import RandomForestRegressor
 class RandomForestRegression(skl.base.BaseEstimator,
                              skl.base.TransformerMixin):
     
-    def __init__(self, n_estimators=10, bootstrap=False):
+    def __init__(self, n_estimators=10, w1=1, w2=2, w3=1, w4=1, bootstrap=False, min_weight_fraction_leaf=0.0):
         self.n_estimators = n_estimators
         self.bootstrap = bootstrap
-        self.model = RandomForestRegressor(n_estimators=self.n_estimators, bootstrap=self.bootstrap, verbose=1)
+        self.mwfl = min_weight_fraction_leaf
+        self.w1 = w1
+        self.w2 = w2
+        self.w3 = w3
+        self.w4 = w4
+        self.model = RandomForestRegressor(n_estimators=self.n_estimators, bootstrap=self.bootstrap, verbose=1, min_weight_fraction_leaf=self.mwfl)
     
     def fit(self, X, y):
 
-#        w = np.ones(X.shape[0])
-#        yn = np.argmax(y,axis=1)
-#        count = np.bincount(yn)
-#        w[yn == 0] = 4*X.shape[0] / (X.shape[0] * np.bincount(yn)[0])
-#        w[yn == 1] = 4*X.shape[0] / (X.shape[0] * np.bincount(yn)[1])
-#        w[yn == 2] = 4*X.shape[0] / (X.shape[0] * np.bincount(yn)[2])
-#        w[yn == 3] = 4*X.shape[0] / (X.shape[0] * np.bincount(yn)[3])
+        w = np.zeros(X.shape[0])
+        
+        w[np.argmax(y,axis=1) == 0] = self.w1
+        w[np.argmax(y,axis=1) == 1] = self.w2
+        w[np.argmax(y,axis=1) == 2] = self.w3
+        w[np.argmax(y,axis=1) == 3] = self.w4
 
         print("Fitting {} Trees in RandomForest..." .format(self.n_estimators))
-        self.model.fit(X, y)
+        self.model.fit(X, y, w)
     
         return self
 

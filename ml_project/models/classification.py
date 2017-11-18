@@ -73,7 +73,8 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y):
         print("X shape: {}" .format(X.shape))
-        self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability, class_weight='balanced')
+        self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability, class_weight={0:0.33,1:1.5,2:5,3:9})
+        
     
     
         Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
