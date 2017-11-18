@@ -7,15 +7,16 @@ from sklearn.externals import joblib
 from sklearn.utils import resample
 from ml_project.model_selection import SKFold
 
-def crossvalscore(path_m, path_x, path_y, k):
+def crossvalscore(path_m, path_x, path_y, k, n_jobs=1):
     
     clf = joblib.load(path_m)
     X = np.load(path_x)
     y_prob = np.loadtxt(path_y)
     
-    cv = SKFold(n_splits=k, shuffle=True)
+    cv = KFold(n_splits=k, shuffle=True)
     print("Starting " + str(k) + "-fold cross-validation...")
-    scores = cross_val_score(clf, X, y_prob, cv=cv)
+    scores = cross_val_score(clf, X, y_prob, cv=cv, n_jobs=n_jobs)
+    print("Scores: {}".format(scores))
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 

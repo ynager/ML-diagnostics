@@ -22,13 +22,12 @@ class MeanPredictor(BaseEstimator, TransformerMixin):
 from sklearn.ensemble import GradientBoostingClassifier
 class GradientBoostingClassification(BaseEstimator, TransformerMixin):
     
-    def __init__(self,learning_rate=0.1, n_estimators=100, verbose=1, subsample=1, max_depth=3, p_threshold=1):
+    def __init__(self,learning_rate=0.1, n_estimators=100, verbose=1, subsample=1, max_depth=3):
         self.learning_rate = learning_rate
         self.n_estimators = n_estimators
         self.verbose = verbose
         self.subsample = subsample
         self.max_depth = max_depth
-        self.p_threshold = p_threshold
                  
                  
     def fit(self, X, y, sample_weight=None):
@@ -39,20 +38,17 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                                                 verbose=self.verbose,
                                                 max_depth=self.max_depth)
         
-        yn = np.argmax(y,axis=1)
+        Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
+        yn = np.zeros(X.shape[0]*y.shape[1])
+        wn = np.ones(X.shape[0]*y.shape[1])
         
-        # create sample weights
-        w = np.ones((X.shape[0]))
+        for i in range(X.shape[0]*y.shape[1]):
+            Xn[i,:] = X[i // y.shape[1]]
+            yn[i] = i % y.shape[1]
+            wn[i] = y[i // y.shape[1],i % y.shape[1]]
         
-        if self.p_threshold < 1:
-            for i in range(X.shape[0]):
-                if(np.max(y[i]) < self.p_threshold):
-                    w[i] = 0.001
-                else:
-                    w[i] = np.max(y[i])
-    
-        #self.model.fit(Xu, yu, wu)
-        self.model.fit(X, yn, w)
+        self.model.fit(Xn, yn, wn)
+        
         return self
 
 
@@ -70,28 +66,26 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
 from sklearn.svm import SVC
 class SupportVectorClassification(BaseEstimator, TransformerMixin):
 
-    def __init__(self, C=1, kernel='rbf', probability=True, p_threshold=1):
+    def __init__(self, C=1, kernel='rbf', probability=True):
         self.probability = probability
         self.kernel = kernel
         self.C = C
-        self.p_threshold = p_threshold
 
     def fit(self, X, y):
         print("X shape: {}" .format(X.shape))
         self.model = SVC(C=self.C, kernel=self.kernel, probability=self.probability, class_weight='balanced')
     
     
-        w = np.ones((X.shape[0]))
-        yn = np.argmax(y,axis=1)
+        Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
+        yn = np.zeros(X.shape[0]*y.shape[1])
+        wn = np.ones(X.shape[0]*y.shape[1])
         
-        if self.p_threshold < 1:
-            for i in range(X.shape[0]):
-                if(np.max(y[i]) < self.p_threshold):
-                    w[i] = 0.001
-                else:
-                    w[i] = np.max(y[i])
+        for i in range(X.shape[0]*y.shape[1]):
+            Xn[i,:] = X[i // y.shape[1]]
+            yn[i] = i % y.shape[1]
+            wn[i] = y[i // y.shape[1],i % y.shape[1]]
 
-        self.model.fit(X, yn, w)
+        self.model.fit(Xn, yn, wn)
         return self
 
     def predict(self, X):
@@ -110,27 +104,25 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
 from sklearn.ensemble import RandomForestClassifier
 class RandomForestClassification(BaseEstimator, TransformerMixin):
 
-    def __init__(self, n_estimators=10, bootstrap=False, class_weight=None, p_threshold=1):
+    def __init__(self, n_estimators=10, bootstrap=False, class_weight=None):
         self.n_estimators = n_estimators
         self.bootstrap = bootstrap
         self.class_weight = class_weight
-        self.p_threshold = p_threshold
 
     def fit(self, X, y):
         print("X shape: {}" .format(X.shape))
         self.model = RandomForestClassifier(n_estimators=self.n_estimators, bootstrap=self.bootstrap, class_weight=self.class_weight, verbose=1)
         
-        w = np.ones((X.shape[0]))
-        yn = np.argmax(y,axis=1)
+        Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
+        yn = np.zeros(X.shape[0]*y.shape[1])
+        wn = np.ones(X.shape[0]*y.shape[1])
         
-        if self.p_threshold < 1:
-            for i in range(X.shape[0]):
-                if(np.max(y[i]) < self.p_threshold):
-                    w[i] = 0.2
-                else:
-                    w[i] = np.max(y[i])
-
-        self.model.fit(X, yn, w)
+        for i in range(X.shape[0]*y.shape[1]):
+            Xn[i,:] = X[i // y.shape[1]]
+            yn[i] = i % y.shape[1]
+            wn[i] = y[i // y.shape[1],i % y.shape[1]]
+        
+        self.model.fit(Xn, yn, wn)
         return self
 
     def set_params(**params):
