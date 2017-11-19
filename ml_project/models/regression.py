@@ -380,6 +380,7 @@ class LogisticRegressor(skl.base.BaseEstimator,
     
     def predict_proba(self, X):
         y_pred = self.model.predict_proba(X)
+        print(y_pred)
         return y_pred
     
     def score(self, X, y):

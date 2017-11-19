@@ -6,14 +6,17 @@ from sklearn.model_selection import KFold
 from sklearn.externals import joblib
 from sklearn.utils import resample
 from ml_project.model_selection import SKFold
+from sklearn.cross_validation import StratifiedKFold
 
 def crossvalscore(path_m, path_x, path_y, k, n_jobs=1):
     
     clf = joblib.load(path_m)
     X = np.load(path_x)
     y_prob = np.loadtxt(path_y)
+    yn = np.argmax(y_prob, axis=1)
     
-    cv = KFold(n_splits=k, shuffle=True)
+    #cv = KFold(n_splits=k, shuffle=True)
+    cv = StratifiedKFold(yn, k)
     print("Starting " + str(k) + "-fold cross-validation...")
     scores = cross_val_score(clf, X, y_prob, cv=cv, n_jobs=n_jobs)
     print("Scores: {}".format(scores))
