@@ -2,13 +2,15 @@ from sklearn.model_selection import GridSearchCV
 import pandas as pd
 import numpy as np
 from os.path import normpath
+from sklearn.model_selection import StratifiedKFold
 
 
 class GridSearchCV(GridSearchCV):
     """docstring for GridSearchCV"""
 
-    def __init__(self, est_class, est_params, param_grid, cv=None, n_jobs=30, pre_dispatch="2*n_jobs",
-                 error_score="raise", save_path=None, **kwargs):
+    def __init__(self, est_class, est_params, param_grid, cv=None,
+                 n_jobs=30, pre_dispatch="2*n_jobs", error_score="raise",
+                 save_path=None, **kwargs):
 
         self.est_class = est_class
         self.est_params = est_params
@@ -49,8 +51,6 @@ class GridSearchCV(GridSearchCV):
         print("best score: {}" .format(self.best_score_))
         print("best index: {}" .format(self.best_index_))
         print("*******************************")
-        
-        
 
         return self
 
@@ -60,17 +60,18 @@ class GridSearchCV(GridSearchCV):
            hasattr(self.best_estimator_, "save_path")):
             self.best_estimator_.set_save_path(save_path)
 
-from sklearn.model_selection import StratifiedKFold
+
 class SKFold():
     def __init__(self, n_splits, shuffle):
         self.n_splits = n_splits
         self.shuffle = shuffle
 
-        self.model = StratifiedKFold(n_splits=self.n_splits, shuffle=self.shuffle)
+        self.model = StratifiedKFold(n_splits=self.n_splits,
+                                     shuffle=self.shuffle)
 
     def get_n_splits(self, X=None, y=None, groups=None):
         return self.model.get_n_splits(X, y)
 
     def split(self, X, y, groups=None):
-        y = np.argmax(y,axis=1)
+        y = np.argmax(y, axis=1)
         return self.model.split(X, y)

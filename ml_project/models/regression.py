@@ -7,10 +7,12 @@ from scipy import stats
 
 from sklearn.svm import SVR
 from sklearn.linear_model import Ridge
-# from sklearn.linear_model import Lasso
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.linear_model import HuberRegressor
 from sklearn.linear_model import BayesianRidge
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingRegressor
 
 
 class SVRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -243,78 +245,73 @@ class GaussianProcessRegression(skl.base.BaseEstimator,
         prediction = self.model.predict(X)
         print("Gaussian predicted")
         return prediction
-    
+
     def predict_proba(self, X):
         return self.predict(X)
-    
+
     def score(self, X, y):
         ypred = self.predict(X)
-        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
+        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)
 
     def set_save_path(self, save_path):
         self.save_path = save_path
 
-from sklearn.ensemble import RandomForestRegressor
+
 class RandomForestRegression(skl.base.BaseEstimator,
                              skl.base.TransformerMixin):
-    
-    def __init__(self, n_estimators=10, w1=1, w2=2, w3=1, w4=1, bootstrap=False, min_weight_fraction_leaf=0.0):
+
+    def __init__(self, n_estimators=10, bootstrap=False,
+                 min_weight_fraction_leaf=0.0):
         self.n_estimators = n_estimators
         self.bootstrap = bootstrap
         self.mwfl = min_weight_fraction_leaf
-        self.w1 = w1
-        self.w2 = w2
-        self.w3 = w3
-        self.w4 = w4
-        self.model = RandomForestRegressor(n_estimators=self.n_estimators, bootstrap=self.bootstrap, verbose=1, min_weight_fraction_leaf=self.mwfl)
-    
+        self.model = RandomForestRegressor(n_estimators=self.n_estimators,
+                                           bootstrap=self.bootstrap,
+                                           verbose=1,
+                                           min_weight_fraction_leaf=self.mwfl)
+
     def fit(self, X, y):
-
-        w = np.zeros(X.shape[0])
-        
-        w[np.argmax(y,axis=1) == 0] = self.w1
-        w[np.argmax(y,axis=1) == 1] = self.w2
-        w[np.argmax(y,axis=1) == 2] = self.w3
-        w[np.argmax(y,axis=1) == 3] = self.w4
-
         print("Fitting {} Trees in RandomForest..." .format(self.n_estimators))
-        self.model.fit(X, y, w)
-    
-        return self
+        self.model.fit(X, y)
 
+        return self
 
     def predict(self, X):
         pred = self.model.predict(X)
         print("Prediction: " + str(pred))
         return pred
-    
+
     def predict_proba(self, X):
-        pred =  self.model.predict(X)
+        pred = self.model.predict(X)
         print("Prediction: " + str(pred))
         return pred
-    
+
     def score(self, X, y):
         ypred = self.predict(X)
-        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
+        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)
 
 
-from sklearn.ensemble import GradientBoostingRegressor
 class GradientBoostingRegression(skl.base.BaseEstimator,
                                  skl.base.TransformerMixin):
-    
-    def __init__(self,learning_rate=0.1, loss='ls', n_estimators=100, verbose=1, subsample=1, max_depth=3):
-        
+
+    def __init__(self,
+                 learning_rate=0.1,
+                 loss='ls',
+                 n_estimators=100,
+                 verbose=1,
+                 subsample=1,
+                 max_depth=3):
+
         self.loss = loss
-        self.learning_rate = learning_rate
+        self.lr = learning_rate
         self.n_estimators = n_estimators
         self.verbose = verbose
         self.subsample = subsample
         self.max_depth = max_depth
-    
-    
+
     def fit(self, X, y, sample_weight=None):
         print("X shape before classification: {}" .format(X.shape))
-        self.model = GradientBoostingRegressor(learning_rate=self.learning_rate,
+        self.model = GradientBoostingRegressor(learning_rate=self.lr,
                                                loss=self.loss,
                                                n_estimators=self.n_estimators,
                                                subsample=self.subsample,
@@ -323,25 +320,29 @@ class GradientBoostingRegression(skl.base.BaseEstimator,
 
         self.model.fit(X, y)
         return self
-                                                                    
 
     def predict(self, X):
         self.model.predict(X)
-    
+
     def predict_proba(self, X):
         y_pred = self.predict(X)
         return y_pred
-    
+
     def score(self, X, y):
         ypred = self.predict_proba(X)
-        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
+        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)
 
 
-from sklearn.linear_model import LogisticRegression
 class LogisticRegressor(skl.base.BaseEstimator,
-                         skl.base.TransformerMixin):
+                        skl.base.TransformerMixin):
 
-    def __init__(self, C, solver, multi_class, dual=False, class_weight='balanced', n_jobs=1, max_iter=100, verbose=0):
+    def __init__(self, C, solver, multi_class,
+                 dual=False,
+                 class_weight='balanced',
+                 n_jobs=1,
+                 max_iter=100,
+                 verbose=0):
+
         self.C = C
         self.class_weight = class_weight
         self.solver = solver
@@ -361,31 +362,28 @@ class LogisticRegressor(skl.base.BaseEstimator,
                                         verbose=self.verbose)
 
     def fit(self, X, y):
-        
+
         print("Logistic Regressor with C = " + str(self.C))
         Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
         yn = np.zeros(X.shape[0]*y.shape[1])
         wn = np.ones(X.shape[0]*y.shape[1])
-        
+
         for i in range(X.shape[0]*y.shape[1]):
-            Xn[i,:] = X[i // y.shape[1]]
+            Xn[i, :] = X[i // y.shape[1]]
             yn[i] = i % y.shape[1]
-            wn[i] = y[i // y.shape[1],i % y.shape[1]]
-    
+            wn[i] = y[i // y.shape[1], i % y.shape[1]]
+
         self.model.fit(Xn, yn, wn)
         return self
 
     def predict(self, X):
         self.model.predict(X)
-    
+
     def predict_proba(self, X):
         y_pred = self.model.predict_proba(X)
         print(y_pred)
         return y_pred
-    
+
     def score(self, X, y):
         ypred = self.predict_proba(X)
-        return np.mean(stats.spearmanr(ypred,y,axis=1).correlation)
-
-
-
+        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)

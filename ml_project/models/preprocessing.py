@@ -18,6 +18,7 @@ class ReduceResolution(skl.base.BaseEstimator, skl.base.TransformerMixin):
         print("ReduceResolution transformed")
         return X_new
 
+
 class GaussianFilter(skl.base.BaseEstimator, skl.base.TransformerMixin):
     def __init__(self, sigma):
         self.sigma = sigma
@@ -42,7 +43,7 @@ class AnisotropicDiffusion(skl.base.BaseEstimator, skl.base.TransformerMixin):
         print("running Anisotropi Diffusion...")
         if (self.niter == 0):
             return X
-        
+
         for sec in range(len(X)):
             print("running aniso for sec " + str(sec))
             for f in range(X[0].shape[0]):
@@ -61,39 +62,37 @@ class TransformToCubes(skl.base.BaseEstimator, skl.base.TransformerMixin):
         return self
 
     def transform(self, X, y=None):
-        
+
         num_cubes = np.zeros(len(X), dtype=np.int)
         for seg in range(len(X)):
-            num_cubes[seg] = X[seg].shape[1]//self.d * X[seg].shape[2]//self.d * X[seg].shape[3]//self.d
+            num_cubes[seg] = X[seg].shape[1]//self.d * \
+                             X[seg].shape[2]//self.d * X[seg].shape[3]//self.d
+
             print("# cubes: {} " .format(num_cubes[seg]))
-        
+
         Xnew = np.zeros((X[0].shape[0],
-                            num_cubes[0],
-                            self.d,
-                            self.d,
-                            self.d))
-                            
+                         num_cubes[0],
+                         self.d,
+                         self.d,
+                         self.d))
 
         for samp in range(X[0].shape[0]):
             Xnew[samp] = make_blocks(X[0][samp], self.d)
-        
+
         for seg in range(1, len(X)):
             Xseg = np.zeros((X[seg].shape[0],
                              num_cubes[seg],
                              self.d,
                              self.d,
                              self.d))
-                             
+
             for samp in range(X[seg].shape[0]):
                 Xseg[samp] = make_blocks(X[seg][samp], self.d)
-            
-            Xnew = np.concatenate((Xnew, Xseg), axis = 1)
+
+            Xnew = np.concatenate((Xnew, Xseg), axis=1)
 
         print("X shape after cubing: {}" .format(Xnew.shape))
         return Xnew
-
-
-
 
 
 class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -115,11 +114,14 @@ class CropCubeHist(skl.base.BaseEstimator, skl.base.TransformerMixin):
         X = X.reshape(-1, 176, 208, 176)
 
         # crop data
-        # X = X[:,48:128,30:150,30:150]
-        X = X[:,58:118,70:150,30:110]
+        # X = X[:, 48:128, 30:150, 30:150]
+        X = X[:, 58:118, 70:150, 30:110]
 
         for f in range(X.shape[0]):
-         X[f] = anisodiff3(X[f], option=1, kappa=self.anis_kappa, niter=self.anis_niter)
+            X[f] = anisodiff3(X[f],
+                              option=1,
+                              kappa=self.anis_kappa,
+                              niter=self.anis_niter)
 
         # bins
         n_bins = self.nbins

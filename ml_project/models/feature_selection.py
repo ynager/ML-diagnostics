@@ -30,7 +30,6 @@ class KPCA(BaseEstimator, TransformerMixin):
             return X
 
 
-
 class VarianceThreshold(BaseEstimator, TransformerMixin):
     def __init__(self):
         self.model = None
@@ -68,13 +67,12 @@ class KBest(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y):
         self.model = SelectKBest(f_regression, k=self.k)
-        yn = np.argmax(y,axis=1)
+        yn = np.argmax(y, axis=1)
         self.model.fit(X, yn)
         return self
 
     def transform(self, X, y=None):
         X_new = self.model.transform(X)
-        print("Selected " + str(X_new.shape[1]) + " best from " + str(X.shape[1]))
         return X_new
 
 
