@@ -3,6 +3,38 @@ from sklearn.utils.validation import check_array
 import scipy.ndimage as nd
 import numpy as np
 from ml_project.models.utils import make_blocks, anisodiff3
+from scipy import signal
+
+
+
+class Trim(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def __init__(self, min, max):
+        self.min = min
+        self.max = max
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X, y=None):
+        X = X[:,self.min:self.max]
+        return X
+
+class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
+    def __init__(self, window='hamming', nperseg=256):
+        self.window = window
+        self.nperseg = nperseg
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X, y=None):
+        W = np.zeros((X.shape[0], self.nperseg//2+1))
+        for samp in range(X.shape[0]):
+            f, W[samp,:] = signal.welch(X[samp,:], window=self.window, nperseg=self.nperseg)
+        return W
+
+
+
 
 
 class ReduceResolution(skl.base.BaseEstimator, skl.base.TransformerMixin):

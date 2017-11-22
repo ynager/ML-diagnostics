@@ -10,13 +10,12 @@ def crossvalscore(path_m, path_x, path_y, k, n_jobs=1):
 
     clf = joblib.load(path_m)
     X = np.load(path_x)
-    y_prob = np.loadtxt(path_y)
-    yn = np.argmax(y_prob, axis=1)
+    y = np.loadtxt(path_y)
 
     # cv = KFold(n_splits=k, shuffle=True)
-    cv = StratifiedKFold(yn, k)
+    cv = StratifiedKFold(y, k)
     print("Starting " + str(k) + "-fold cross-validation...")
-    scores = cross_val_score(clf, X, y_prob, cv=cv, n_jobs=n_jobs)
+    scores = cross_val_score(clf, X, y, cv=cv, n_jobs=n_jobs)
     print("Scores: {}".format(scores))
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 

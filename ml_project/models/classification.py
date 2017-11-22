@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted
 from scipy import stats
+from sklearn.metrics import f1_score
 
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
@@ -68,7 +69,7 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
 
 class SupportVectorClassification(BaseEstimator, TransformerMixin):
 
-    def __init__(self, C=1, kernel='rbf', probability=True, class_weight=None):
+    def __init__(self, C=1, kernel='linear', probability=False, class_weight=None):
         self.probability = probability
         self.kernel = kernel
         self.C = C
@@ -80,20 +81,13 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
                          probability=self.probability,
                          class_weight=self.class_weight)
 
-        Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
-        yn = np.zeros(X.shape[0]*y.shape[1])
-        wn = np.ones(X.shape[0]*y.shape[1])
-
-        for i in range(X.shape[0]*y.shape[1]):
-            Xn[i, :] = X[i // y.shape[1]]
-            yn[i] = i % y.shape[1]
-            wn[i] = y[i // y.shape[1], i % y.shape[1]]
-
-        self.model.fit(Xn, yn, wn)
+        self.model.fit(X, y)
         return self
 
     def predict(self, X):
-        return self.model.predict(X)
+        pred = self.model.predict(X)
+        print(pred)
+        return pred
 
     def predict_proba(self, X):
         pred = self.model.predict_proba(X)
@@ -101,8 +95,9 @@ class SupportVectorClassification(BaseEstimator, TransformerMixin):
         return pred
 
     def score(self, X, y):
-        ypred = self.predict_proba(X)
-        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)
+        ypred = self.predict(X)
+        print(ypred)
+        return f1_score(y, ypred, average='micro')
 
 
 class RandomForestClassification(BaseEstimator, TransformerMixin):
@@ -119,16 +114,7 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
                                             class_weight=self.class_weight,
                                             verbose=1)
 
-        Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
-        yn = np.zeros(X.shape[0]*y.shape[1])
-        wn = np.ones(X.shape[0]*y.shape[1])
-
-        for i in range(X.shape[0]*y.shape[1]):
-            Xn[i, :] = X[i // y.shape[1]]
-            yn[i] = i % y.shape[1]
-            wn[i] = y[i // y.shape[1], i % y.shape[1]]
-
-        self.model.fit(Xn, yn, wn)
+        self.model.fit(X, y)
         return self
 
     def predict(self, X):
@@ -140,8 +126,8 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
         return pred
 
     def score(self, X, y):
-        ypred = self.predict_proba(X)
-        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)
+        ypred = self.predict(X)
+        return f1_score(y, ypred, average='micro')
 
 
 class MLPRegression(BaseEstimator, TransformerMixin):
