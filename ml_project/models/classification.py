@@ -8,6 +8,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPRegressor
+from sklearn.metrics import precision_recall_fscore_support
 
 
 class MeanPredictor(BaseEstimator, TransformerMixin):
@@ -33,14 +34,16 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
         self.verbose = verbose
         self.subsample = subsample
         self.max_depth = max_depth
-
-    def fit(self, X, y, sample_weight=None):
-        print("X shape before classification: {}" .format(X.shape))
+    
         self.model = GradientBoostingClassifier(learning_rate=self.lr,
                                                 n_estimators=self.n_estimators,
                                                 subsample=self.subsample,
                                                 verbose=self.verbose,
                                                 max_depth=self.max_depth)
+
+    def fit(self, X, y, sample_weight=None):
+        print("X shape before classification: {}" .format(X.shape))
+
 
 
         self.model.fit(X, y)
@@ -48,7 +51,8 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
         return self
 
     def predict(self, X):
-        self.model.predict(X)
+        ypred = self.model.predict(X)
+        return ypred.astype(int)
 
     def predict_proba(self, X):
         y_pred = self.model.predict_proba(X)
