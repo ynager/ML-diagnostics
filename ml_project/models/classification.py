@@ -42,16 +42,8 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                                                 verbose=self.verbose,
                                                 max_depth=self.max_depth)
 
-        Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
-        yn = np.zeros(X.shape[0]*y.shape[1])
-        wn = np.ones(X.shape[0]*y.shape[1])
 
-        for i in range(X.shape[0]*y.shape[1]):
-            Xn[i, :] = X[i // y.shape[1]]
-            yn[i] = i % y.shape[1]
-            wn[i] = y[i // y.shape[1], i % y.shape[1]]
-
-        self.model.fit(Xn, yn, wn)
+        self.model.fit(X, y)
 
         return self
 
@@ -63,8 +55,9 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
         return y_pred
 
     def score(self, X, y):
-        ypred = self.predict_proba(X)
-        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)
+        ypred = self.predict(X)
+        print(ypred)
+        return f1_score(y, ypred, average='micro')
 
 
 class SupportVectorClassification(BaseEstimator, TransformerMixin):
