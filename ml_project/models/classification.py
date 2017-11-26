@@ -27,19 +27,26 @@ class MeanPredictor(BaseEstimator, TransformerMixin):
 class GradientBoostingClassification(BaseEstimator, TransformerMixin):
 
     def __init__(self, learning_rate=0.1, n_estimators=100,
-                 verbose=1, subsample=1, max_depth=3):
+                 verbose=1, subsample=1, max_depth=3, loss='deviance',
+                 min_samples_split=2, min_samples_leaf=1):
 
         self.lr = learning_rate
         self.n_estimators = n_estimators
         self.verbose = verbose
         self.subsample = subsample
         self.max_depth = max_depth
+        self.loss = loss
+        self.m_s_s = min_samples_split
+        self.m_s_l = min_samples_leaf
     
         self.model = GradientBoostingClassifier(learning_rate=self.lr,
                                                 n_estimators=self.n_estimators,
                                                 subsample=self.subsample,
                                                 verbose=self.verbose,
-                                                max_depth=self.max_depth)
+                                                max_depth=self.max_depth,
+                                                loss=self.loss,
+                                                min_samples_split=self.m_s_s,
+                                                min_samples_leaf=self.m_s_l)
 
     def fit(self, X, y, sample_weight=None):
         print("X shape before classification: {}" .format(X.shape))
