@@ -20,10 +20,11 @@ class Trim(skl.base.BaseEstimator, skl.base.TransformerMixin):
         return X
 
 class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, window='hamming', nperseg=256, cutoff_freq=15):
+    def __init__(self, window='hamming', nperseg=256, cutoff_freq_h=15, cutoff_freq_l=0.5):
         self.window = window
         self.nperseg = nperseg
-        self.cutoff_freq = cutoff_freq
+        self.cutoff_freq_h = cutoff_freq_h
+        self.cutoff_freq_l = cutoff_freq_l
 
     def fit(self, X, y):
         return self
@@ -34,8 +35,9 @@ class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
         # build butterworth filter
         fs = 200
         nyq = 0.5 * fs
-        normal_cutoff = self.cutoff_freq / nyq
-        b, a = signal.butter(3, normal_cutoff, btype='low', analog=False)
+        n_cutoff_h = self.cutoff_freq_h / nyq
+        n_cutoff_l = self.cutoff_freq_l / nyq
+        b, a = signal.butter(3, [n_cutoff_l, n_cutoff_h], btype='band', analog=False)
         
         #X_clip = np.clip(X, -1000, 1000)
         
