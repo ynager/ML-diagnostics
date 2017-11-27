@@ -1,5 +1,30 @@
 from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
+from ml_project.models.utils import ecg_analysis
+
+
+
+class AddECGMeasures(BaseEstimator, TransformerMixin):
+    def __init__(self, hrw, fs):
+        self.hrw = hrw
+        self.fs = fs
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X, y=None):
+        
+        X_mes = np.zeros((X[1].shape[0], 7))
+
+        for samp in range(X_mes.shape[0]):
+            ecg = ecg_analysis(X[0][samp], self.hrw, self.fs)
+            ecg.calc_ts_measures()
+            X_mes[samp] = ecg.get_measures_array()
+        
+        Xaug = np.concatenate((X[1], X_mes), axis=1)
+        return Xaug
+
+
 
 
 class Crop(BaseEstimator, TransformerMixin):

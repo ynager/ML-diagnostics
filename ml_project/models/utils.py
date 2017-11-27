@@ -1,7 +1,9 @@
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import cross_val_score
 from sklearn.externals import joblib
 from sklearn.cross_validation import StratifiedKFold
+import math
 # from sklearn.model_selection import KFold
 # from ml_project.model_selection import SKFold
 
@@ -187,3 +189,93 @@ def image_histogram_equalization(image, number_bins=256, max_value=255):
     image_equalized = np.interp(image.flatten(), bins[:-1], cdf)
 
     return image_equalized.reshape(image.shape), cdf
+
+
+class ecg_analysis:
+    def __init__(self, dataset, hrw, fs):
+        self.measures = {}
+        self.dataset = dataset
+        self.hrw = hrw
+        self.fs = fs
+    
+        self.detect_peaks()
+        self.calc_RR()
+
+    def rolmean(self):
+        mov_avg = pd.rolling_mean(self.dataset, window=(int(self.hrw*self.fs)))
+        avg_hr = (np.mean(self.dataset))
+        mov_avg = [avg_hr if math.isnan(x) else x for x in mov_avg]
+        return mov_avg
+
+    def detect_peaks(self):
+        window = []
+        peaklist = []
+        listpos = 0
+        
+        rollingmean_sig = self.rolmean()
+        
+        for datapoint in self.dataset:
+            rollingmean = rollingmean_sig[listpos]
+            if (datapoint <= rollingmean) and (len(window) <= 1): #Here is the update in (datapoint <= rollingmean)
+                listpos += 1
+            elif (datapoint > rollingmean):
+                window.append(datapoint)
+                listpos += 1
+            else:
+                maximum = max(window)
+                beatposition = listpos - len(window) + (window.index(max(window)))
+                peaklist.append(beatposition)
+                window = []
+                listpos += 1
+        self.measures['peaklist'] = peaklist
+        self.measures['ybeat'] = [self.dataset[x] for x in peaklist]
+
+    def calc_RR(self):
+        peaklist = self.measures['peaklist']
+        RR_list = []
+        cnt = 0
+        while (cnt < (len(peaklist)-1)):
+            RR_interval = (peaklist[cnt+1] - peaklist[cnt])
+            ms_dist = ((RR_interval / self.fs) * 1000.0)
+            RR_list.append(ms_dist)
+            cnt += 1
+    
+        RR_diff = []
+        RR_sqdiff = []
+        cnt = 0
+        
+        while (cnt < (len(RR_list)-1)):
+            RR_diff.append(abs(RR_list[cnt] - RR_list[cnt+1]))
+            RR_sqdiff.append(math.pow(RR_list[cnt] - RR_list[cnt+1], 2))
+            cnt += 1
+        
+        self.measures['RR_list'] = RR_list
+        self.measures['RR_diff'] = RR_diff
+        self.measures['RR_sqdiff'] = RR_sqdiff
+
+    def calc_ts_measures(self):
+        RR_list = self.measures['RR_list']
+        RR_diff = self.measures['RR_diff']
+        RR_sqdiff = self.measures['RR_sqdiff']
+        self.measures['bpm'] = 60000 / np.mean(RR_list)
+        self.measures['ibi'] = np.mean(RR_list)
+        self.measures['sdnn'] = np.std(RR_list)
+        self.measures['sdsd'] = np.std(RR_diff)
+        self.measures['rmssd'] = np.sqrt(np.mean(RR_sqdiff))
+        NN20 = [x for x in RR_diff if (x>20)]
+        NN50 = [x for x in RR_diff if (x>50)]
+        self.measures['nn20'] = NN20
+        self.measures['nn50'] = NN50
+        self.measures['pnn20'] = float(len(NN20)) / float(len(RR_diff))
+        self.measures['pnn50'] = float(len(NN50)) / float(len(RR_diff))
+
+    def calc_bpm(self):
+        RR_list = self.measures['RR_list']
+        self.measures['bpm'] = 60000 / np.mean(RR_list)
+
+    def get_measures_array(self):
+
+        m = self.measures
+        list = [m['bpm'], m['ibi'], m['sdnn'], m['sdsd'], m['rmssd'], m['pnn20'], m['pnn50']]
+
+        return list
