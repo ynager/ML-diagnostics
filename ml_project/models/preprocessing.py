@@ -44,8 +44,19 @@ class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
         
         # filter and welch
         for samp in range(X.shape[0]):
-            Xfiltered = signal.lfilter(b, a, X[samp,:])
+            max = 20000
+            min = 0
+            #min = np.where(X[samp,0:500] > 0)
+            #min = min[0][0]
+            
+            for i in range(min, X.shape[1]):
+                if np.count_nonzero(X[samp,i:i+200]) == 0:
+                    max = i
+                    break
+
+            Xfiltered = signal.lfilter(b, a, X[samp,min:max])
             f, W[samp,:] = signal.welch(Xfiltered,fs=fs,window=self.window, nperseg=self.nperseg)
+        print("welch done")
         return (X,W)
 
 
