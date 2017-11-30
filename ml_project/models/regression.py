@@ -13,6 +13,8 @@ from sklearn.linear_model import BayesianRidge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.metrics import f1_score
+
 
 
 class SVRegression(skl.base.BaseEstimator, skl.base.TransformerMixin):
@@ -362,28 +364,16 @@ class LogisticRegressor(skl.base.BaseEstimator,
                                         verbose=self.verbose)
 
     def fit(self, X, y):
-
-        print("Logistic Regressor with C = " + str(self.C))
-        Xn = np.zeros((X.shape[0]*y.shape[1], X.shape[1]))
-        yn = np.zeros(X.shape[0]*y.shape[1])
-        wn = np.ones(X.shape[0]*y.shape[1])
-
-        for i in range(X.shape[0]*y.shape[1]):
-            Xn[i, :] = X[i // y.shape[1]]
-            yn[i] = i % y.shape[1]
-            wn[i] = y[i // y.shape[1], i % y.shape[1]]
-
-        self.model.fit(Xn, yn, wn)
+        self.model.fit(X, y)
         return self
 
     def predict(self, X):
-        self.model.predict(X)
+        return self.model.predict(X)
 
     def predict_proba(self, X):
         y_pred = self.model.predict_proba(X)
-        print(y_pred)
         return y_pred
 
     def score(self, X, y):
-        ypred = self.predict_proba(X)
-        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)
+        ypred = self.predict(X)
+        return f1_score(y, ypred, average='micro')

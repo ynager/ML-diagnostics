@@ -7,7 +7,7 @@ from sklearn.metrics import f1_score
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPRegressor
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import precision_recall_fscore_support
 
 
@@ -134,12 +134,13 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
         return f1_score(y, ypred, average='micro')
 
 
-class MLPRegression(BaseEstimator, TransformerMixin):
+class MLPClassification(BaseEstimator, TransformerMixin):
     def __init__(self,
                  hidden_layer_sizes1=100,
                  hidden_layer_sizes2=1,
                  activation='relu',
                  solver='adam',
+                 lr_init = 0.001,
                  alpha='0.0001',
                  learning_rate='constant',
                  max_iter=200,
@@ -147,16 +148,17 @@ class MLPRegression(BaseEstimator, TransformerMixin):
                  early_stopping=False,
                  validation_fraction=0.1):
 
-        self.hidden_layer_sizes = (50, 50, 50, 50)
+        self.hidden_layer_sizes = (200, 200, 200, 200, 200)
         self.activation = activation
         self.solver = solver
         self.alpha = alpha
+        self.learning_rate_init = lr_init
         self.learning_rate = learning_rate
         self.max_iter = max_iter
         self.verbose = verbose
         self.early_stopping = early_stopping
         self.validation_fraction = validation_fraction
-        self.model = MLPRegressor(hidden_layer_sizes=self.hidden_layer_sizes,
+        self.model = MLPClassifier(hidden_layer_sizes=self.hidden_layer_sizes,
                                   activation=self.activation,
                                   solver=self.solver,
                                   alpha=self.alpha,
@@ -170,11 +172,10 @@ class MLPRegression(BaseEstimator, TransformerMixin):
         self.model.fit(X, y)
         return self
 
-    def predict_proba(self, X):
+    def predict(self, X):
         pred = self.model.predict(X)
-        print(pred)
         return pred
 
     def score(self, X, y):
-        ypred = self.predict_proba(X)
-        return np.mean(stats.spearmanr(ypred, y, axis=1).correlation)
+        ypred = self.predict(X)
+        return f1_score(y, ypred, average='micro')

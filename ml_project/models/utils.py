@@ -4,6 +4,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.externals import joblib
 from sklearn.cross_validation import StratifiedKFold
 import math
+from scipy.ndimage.filters import uniform_filter1d
 # from sklearn.model_selection import KFold
 # from ml_project.model_selection import SKFold
 
@@ -202,7 +203,7 @@ class ecg_analysis:
         self.calc_RR()
 
     def rolmean(self):
-        mov_avg = pd.rolling_mean(self.dataset, window=(int(self.hrw*self.fs)))
+        mov_avg = uniform_filter1d(self.dataset, size=(int(self.hrw*self.fs)))
         avg_hr = (np.mean(self.dataset))
         mov_avg = [avg_hr if math.isnan(x) else x for x in mov_avg]
         return mov_avg

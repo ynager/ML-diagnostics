@@ -49,8 +49,8 @@ class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
             #min = np.where(X[samp,0:500] > 0)
             #min = min[0][0]
             
-            for i in range(min, X.shape[1]):
-                if np.count_nonzero(X[samp,i:i+200]) == 0:
+            for i in range(min+1000, X.shape[1]):
+                if np.count_nonzero(X[samp,i:i+300:10]) == 0:
                     max = i
                     break
 
