@@ -9,6 +9,8 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import precision_recall_fscore_support
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
 
 
 class MeanPredictor(BaseEstimator, TransformerMixin):
@@ -22,6 +24,54 @@ class MeanPredictor(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["mean"])
         n_samples, _ = X.shape
         return np.tile(self.mean, (n_samples, 1))
+
+class XGBClassification(BaseEstimator, TransformerMixin):
+    def __init__(self, max_depth=3, learning_rate=0.1, n_estimators=100,
+                 n_jobs=1, subsample=1, silent=False, test_size=0, esr=5,
+                 reg_alpha=0, reg_lambda=1, gamma=0):
+
+        self.test_size = test_size
+        self.esr = esr
+        self.model = XGBClassifier(max_depth=max_depth,
+                                   learning_rate=learning_rate,
+                                   objective='multi:softmax',
+                                   n_estimators=n_estimators,
+                                   subsample=subsample,
+                                   silent=silent,
+                                   reg_alpha=reg_alpha,
+                                   reg_lambda=reg_lambda,
+                                   gamma=gamma)
+
+    
+
+    def fit(self, X, y, sample_weight=None):
+        
+        if(self.test_size > 0):
+            X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                                test_size=self.test_size,
+                                                                stratify=y)
+            eval_set = [(X_test, y_test)]
+            self.model.fit(X_train, y_train,
+                           eval_metric="merror",
+                           eval_set=eval_set,
+                           verbose=True,
+                           early_stopping_rounds=self.esr)
+                           
+            print("Eval results: ")
+            print(self.model.evals_result())
+        else:
+            self.model.fit(X, y, )
+        return self
+
+    def predict(self, X):
+        pred = self.model.predict(X)
+        return pred
+
+    def score(self, X, y):
+        ypred = self.predict(X)
+        return f1_score(y, ypred, average='micro')
+
+
 
 
 class GradientBoostingClassification(BaseEstimator, TransformerMixin):
