@@ -9,7 +9,7 @@ class GridSearchCV(GridSearchCV):
     """docstring for GridSearchCV"""
 
     def __init__(self, est_class, est_params, param_grid, cv=None,
-                 n_jobs=40, pre_dispatch="3*n_jobs", error_score="raise",
+                 n_jobs=48, error_score="raise",
                  save_path=None, **kwargs):
 
         self.est_class = est_class
@@ -29,6 +29,7 @@ class GridSearchCV(GridSearchCV):
                                            cv=self.cv_obj,
                                            n_jobs=self.n_jobs,
                                            refit=True,
+                                           verbose=5,
                                            error_score=error_score,
                                            **kwargs)
 

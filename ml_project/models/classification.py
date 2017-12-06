@@ -7,6 +7,7 @@ from sklearn.metrics import f1_score
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import precision_recall_fscore_support
 from xgboost import XGBClassifier
@@ -28,23 +29,36 @@ class MeanPredictor(BaseEstimator, TransformerMixin):
 class XGBClassification(BaseEstimator, TransformerMixin):
     def __init__(self, max_depth=3, learning_rate=0.1, n_estimators=100,
                  n_jobs=1, subsample=1, silent=False, test_size=0, esr=5,
-                 reg_alpha=0, reg_lambda=1, gamma=0):
+                 reg_alpha=0, reg_lambda=1, gamma=0, min_child_weight=1):
 
         self.test_size = test_size
         self.esr = esr
-        self.model = XGBClassifier(max_depth=max_depth,
-                                   learning_rate=learning_rate,
-                                   objective='multi:softmax',
-                                   n_estimators=n_estimators,
-                                   subsample=subsample,
-                                   silent=silent,
-                                   reg_alpha=reg_alpha,
-                                   reg_lambda=reg_lambda,
-                                   gamma=gamma)
-
+        self.max_depth = max_depth
+        self.learning_rate = learning_rate
+        self.n_estimators = n_estimators
+        self.n_jobs = n_jobs
+        self.subsample = subsample
+        self.silent = silent
+        self.test_size = test_size
+        self.esr = esr
+        self.reg_alpha = reg_alpha
+        self.reg_lambda = reg_lambda
+        self.gamma = gamma
+        self.min_child_weight = min_child_weight
     
 
     def fit(self, X, y, sample_weight=None):
+        
+        self.model = XGBClassifier(max_depth=self.max_depth,
+                                   learning_rate=self.learning_rate,
+                                   objective='multi:softmax',
+                                   n_estimators=self.n_estimators,
+                                   subsample=self.subsample,
+                                   silent=self.silent,
+                                   reg_alpha=self.reg_alpha,
+                                   reg_lambda=self.reg_lambda,
+                                   gamma=self.gamma,
+                                   min_child_weight=self.min_child_weight)
         
         if(self.test_size > 0):
             X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -163,7 +177,7 @@ class RandomForestClassification(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y):
         print("X shape: {}" .format(X.shape))
-        self.model = RandomForestClassifier(n_estimators=self.n_estimators,
+        self.model = ExtraTreesClassifier(n_estimators=self.n_estimators,
                                             bootstrap=self.bootstrap,
                                             class_weight=self.class_weight,
                                             verbose=1)
