@@ -1,8 +1,7 @@
 from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
 from ml_project.models.utils import ecg_analysis
-
-
+from scipy import signal
 
 class AddECGMeasures(BaseEstimator, TransformerMixin):
     def __init__(self, hrw, fs):
@@ -14,14 +13,17 @@ class AddECGMeasures(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         
+        #ECG Measures
         X_mes = np.zeros((X[1].shape[0], 7))
-
         for samp in range(X_mes.shape[0]):
             ecg = ecg_analysis(X[0][samp], self.hrw, self.fs)
             ecg.calc_ts_measures()
             X_mes[samp] = ecg.get_measures_array()
         
+        
         Xaug = np.concatenate((X[1], X_mes), axis=1)
+        
+        
         return Xaug
 
 
@@ -122,3 +124,16 @@ class Histogramize3d(BaseEstimator, TransformerMixin):
         Hflat = H.reshape(H.shape[0], -1)
 
         return Hflat
+
+
+class saveX(BaseEstimator, TransformerMixin):
+    def __init__(self, filename):
+        self.filename = filename
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        print('X saved')
+        np.save(self.filename + '.npy', X)
+        return X
