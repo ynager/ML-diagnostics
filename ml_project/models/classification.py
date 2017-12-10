@@ -103,6 +103,8 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
         self.m_s_s = min_samples_split
         self.m_s_l = min_samples_leaf
     
+    def fit(self, X, y, sample_weight=None):
+        print("X shape before classification: {}" .format(X.shape))
         self.model = GradientBoostingClassifier(learning_rate=self.lr,
                                                 n_estimators=self.n_estimators,
                                                 subsample=self.subsample,
@@ -111,10 +113,6 @@ class GradientBoostingClassification(BaseEstimator, TransformerMixin):
                                                 loss=self.loss,
                                                 min_samples_split=self.m_s_s,
                                                 min_samples_leaf=self.m_s_l)
-
-    def fit(self, X, y, sample_weight=None):
-        print("X shape before classification: {}" .format(X.shape))
-
 
 
         self.model.fit(X, y)
