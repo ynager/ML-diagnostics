@@ -20,12 +20,13 @@ class Trim(skl.base.BaseEstimator, skl.base.TransformerMixin):
         return X
 
 class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, window='hamming', nperseg=256, cutoff_freq_h=15, cutoff_freq_l=0.5, fs=200):
+    def __init__(self, window='hamming', nperseg=256, cutoff_freq_h=15, cutoff_freq_l=0.5, fs=200, peak_load=False):
         self.window = window
         self.nperseg = nperseg
         self.cutoff_freq_h = cutoff_freq_h
         self.cutoff_freq_l = cutoff_freq_l
         self.fs = fs
+        self.peak_load = peak_load
     
     
         #Peakfinder
@@ -50,8 +51,6 @@ class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
         n_cutoff_l = self.cutoff_freq_l / nyq
         b, a = signal.butter(5, [n_cutoff_l, n_cutoff_h], btype='band', analog=False)
         
-        X_peak = np.zeros((X.shape[0], 4, self.nr_bins))
-        
         #Filter and Welch and peakfinder
         for samp in range(X.shape[0]):
             if(samp % 10 == 0):
@@ -68,33 +67,34 @@ class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
                     break
             #filter
             Xfiltered = signal.lfilter(b, a, X[samp,min:max])
+            Xcrop = X[samp,min:max]
             
             #welch
             f, W[samp,:] = signal.welch(Xfiltered,fs=fs,window=self.window, nperseg=self.nperseg)
             
             #peakfinder
-            peaks = signal.find_peaks_cwt(Xfiltered[0:5000],range(self.peakRange[0],self.peakRange[1],self.peakRange[2]))
-            valleys = signal.find_peaks_cwt(-Xfiltered[0:5000],range(self.valleyRange[0],self.valleyRange[1],self.valleyRange[2]))
+            X_peak = np.zeros((X.shape[0], 4, self.nr_bins))
+            
+            peaks = signal.find_peaks_cwt(Xcrop[0:max],range(self.peakRange[0],self.peakRange[1],self.peakRange[2]))
+            valleys = signal.find_peaks_cwt(-Xcrop[0:max],range(self.valleyRange[0],self.valleyRange[1],self.valleyRange[2]))
             
             if(len(peaks) != 0):
-                temp = np.where(Xfiltered[peaks] != 0)
+                m = np.mean(Xcrop[peaks])
+                temp = np.where(Xcrop[peaks] > 1.1*m)
                 peaks = peaks[temp]
-                m = np.mean(Xfiltered[peaks])
-                temp = np.where(Xfiltered[peaks] > 1.1*m)
-                peaks = peaks[temp]
-                X_peak[samp,0] = np.histogram(Xfiltered[peaks], bins=self.nr_bins)[0]
+                X_peak[samp,0] = np.histogram(Xcrop[peaks], bins=self.nr_bins)[0]
                 X_peak[samp,1] = np.histogram(peaks[1:]-peaks[:-1], bins=self.nr_bins)[0]
-            
-            if(False):
-                temp = np.where(Xfiltered[valleys] != 0)
+
+            if(len(valleys) != 0):
+                m = np.mean(Xcrop[valleys])
+                temp = np.where(Xcrop[valleys] < 0.9*m)
                 valleys = valleys[temp]
-                m = np.mean(Xfiltered[valleys])
-                temp = np.where(Xfiltered[valleys] < 0.9*m)
-                valleys = valleys[temp]
-                X_peak[samp,2] = np.histogram(Xfiltered[valleys], bins=self.nr_bins)[0]
+                X_peak[samp,2] = np.histogram(Xcrop[valleys], bins=self.nr_bins)[0]
                 X_peak[samp,3] = np.histogram(valleys[1:]-valleys[:-1], bins=self.nr_bins)[0]
     
-        X_peak = X_peak.reshape(X.shape[0],-1)
+
+            X_peak = X_peak.reshape(X.shape[0],-1)
+            np.save('X_peak.npy', X_peak)
         
         X_new = np.concatenate((W, X_peak), axis=1)
         return (X,X_new)
