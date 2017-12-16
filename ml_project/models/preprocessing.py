@@ -4,6 +4,7 @@ import scipy.ndimage as nd
 import numpy as np
 from ml_project.models.utils import make_blocks, anisodiff3
 from scipy import signal
+from multiprocessing import Pool
 
 
 
@@ -20,7 +21,7 @@ class Trim(skl.base.BaseEstimator, skl.base.TransformerMixin):
         return X
 
 class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
-    def __init__(self, window='hamming', nperseg=256, cutoff_freq_h=15, cutoff_freq_l=0.5, fs=200, peak_load=False):
+    def __init__(self, window='hamming', nperseg=256, cutoff_freq_h=15, cutoff_freq_l=0.5, fs=300, peak_load=False, nr_bins=50):
         self.window = window
         self.nperseg = nperseg
         self.cutoff_freq_h = cutoff_freq_h
@@ -28,75 +29,70 @@ class WelchMethod(skl.base.BaseEstimator, skl.base.TransformerMixin):
         self.fs = fs
         self.peak_load = peak_load
     
-    
         #Peakfinder
-        peakRange=[5,30,1]
-        valleyRange=[20,80,1]
-        nr_bins=80
-        
-        self.peakRange = peakRange
-        self.valleyRange = valleyRange
+        self.peakRange = [5,30,1]
+        self.valleyRange = [20,80,1]
         self.nr_bins = nr_bins
 
     def fit(self, X, y):
         return self
+    
+    def doOneSample(self, samp):
+        print(samp)
+        max = 20000
+        min = 0
+        #min = np.where(X[samp,0:500] > 0)
+        #min = min[0][0]
+            
+        for i in range(min+1000, self.X.shape[1]):
+            if np.count_nonzero(self.X[samp, i:i+300:10]) == 0:
+                max = i
+                break
+            
+        #filter
+        Xfiltered = signal.lfilter(self.b, self.a, self.X[samp, min:max])
+        Xcrop = self.X[samp, min:max]
+            
+        #welch
+        f, W = signal.welch(Xfiltered,fs=self.fs,window=self.window, nperseg=self.nperseg)
+            
+        #peakfinder
+        X_peak = np.zeros((2, self.nr_bins))
+            
+        peaks = signal.find_peaks_cwt(Xcrop[0:max],range(self.peakRange[0],self.peakRange[1],self.peakRange[2]))
+            
+        if(len(peaks) != 0):
+            m = np.mean(Xcrop[peaks])
+            temp = np.where(Xcrop[peaks] > 0.9*m)
+            peaks = peaks[temp]
+            X_peak[0] = np.histogram(Xcrop[peaks], bins=self.nr_bins)[0]
+            X_peak[1] = np.histogram(peaks[1:]-peaks[:-1], bins=self.nr_bins)[0]
+        
+        
+        X_peak = X_peak.reshape(-1)
+        X_tot = np.concatenate((W, X_peak))
+        return X_tot
+    
+    
 
     def transform(self, X, y=None):
-        W = np.zeros((X.shape[0], self.nperseg//2+1))
+        self.X = X
         
         # build butterworth filter
         fs = self.fs
         nyq = 0.5 * fs
         n_cutoff_h = self.cutoff_freq_h / nyq
         n_cutoff_l = self.cutoff_freq_l / nyq
-        b, a = signal.butter(5, [n_cutoff_l, n_cutoff_h], btype='band', analog=False)
+        self.b, self.a = signal.butter(5, [n_cutoff_l, n_cutoff_h], btype='band', analog=False)
+            
         
         #Filter and Welch and peakfinder
-        for samp in range(X.shape[0]):
-            if(samp % 10 == 0):
-                print("FWP Sample {} done".format(samp))
-            
-            max = 20000
-            min = 0
-            #min = np.where(X[samp,0:500] > 0)
-            #min = min[0][0]
-            
-            for i in range(min+1000, X.shape[1]):
-                if np.count_nonzero(X[samp,i:i+300:10]) == 0:
-                    max = i
-                    break
-            #filter
-            Xfiltered = signal.lfilter(b, a, X[samp,min:max])
-            Xcrop = X[samp,min:max]
-            
-            #welch
-            f, W[samp,:] = signal.welch(Xfiltered,fs=fs,window=self.window, nperseg=self.nperseg)
-            
-            #peakfinder
-            X_peak = np.zeros((X.shape[0], 4, self.nr_bins))
-            
-            peaks = signal.find_peaks_cwt(Xcrop[0:max],range(self.peakRange[0],self.peakRange[1],self.peakRange[2]))
-            valleys = signal.find_peaks_cwt(-Xcrop[0:max],range(self.valleyRange[0],self.valleyRange[1],self.valleyRange[2]))
-            
-            if(len(peaks) != 0):
-                m = np.mean(Xcrop[peaks])
-                temp = np.where(Xcrop[peaks] > 1.1*m)
-                peaks = peaks[temp]
-                X_peak[samp,0] = np.histogram(Xcrop[peaks], bins=self.nr_bins)[0]
-                X_peak[samp,1] = np.histogram(peaks[1:]-peaks[:-1], bins=self.nr_bins)[0]
-
-            if(len(valleys) != 0):
-                m = np.mean(Xcrop[valleys])
-                temp = np.where(Xcrop[valleys] < 0.9*m)
-                valleys = valleys[temp]
-                X_peak[samp,2] = np.histogram(Xcrop[valleys], bins=self.nr_bins)[0]
-                X_peak[samp,3] = np.histogram(valleys[1:]-valleys[:-1], bins=self.nr_bins)[0]
+        X_new = np.zeros((X.shape[0], self.nperseg//2+1 + self.nr_bins*2))
     
+        pool = Pool(8)
+        X_new_list = pool.map(self.doOneSample, range(X.shape[0]))
+        X_new = np.asarray(X_new_list)
 
-            X_peak = X_peak.reshape(X.shape[0],-1)
-            np.save('X_peak.npy', X_peak)
-        
-        X_new = np.concatenate((W, X_peak), axis=1)
         return (X,X_new)
 
 
